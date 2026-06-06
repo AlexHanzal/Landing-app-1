@@ -1,0 +1,12 @@
+| ZMĚNY |
+Š - V 3.0
+    - updated abbreviations
+    - made users unable to edit other users' cells
+    - updated permanent hours system
+------------------------------------------------
+
+| CO DĚLAT |
+
+------------------------------------------------
+
+| POTŘEBUJE OPRAVU |

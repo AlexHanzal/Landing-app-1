@@ -1,0 +1,4 @@
+Zajistit, aby se po úspěšném přihlášení uživatele zobrazilo jeho jméno v hlavičce jako "Vítejte, <jméno uživatele>!"
+
+Jakmile je stisknuto tlačítko Přihlásit se v přihlašovacím menu a jsou zadány platné přihlašovací údaje, zavřít okno
+
