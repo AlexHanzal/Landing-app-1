@@ -1,0 +1,30 @@
+{
+  "name": "school-reservation-system",
+  "version": "1.0.0",
+  "description": "School Reservation System - A web application for managing school resource reservations",
+  "main": "src/server/server.js",
+  "scripts": {
+    "start": "node src/server/server.js",
+    "dev": "node src/server/server.js",
+    "server": "node src/server/server.js"
+  },
+  "keywords": [
+    "school",
+    "reservation",
+    "timetable",
+    "management",
+    "web-app"
+  ],
+  "author": "Alex Hanzal",
+  "license": "Ligma Balls s.r.o.",
+  "dependencies": {
+    "corey": "^1.0.0",
+    "cors": "^2.8.5",
+    "corss": "^2.8.5",
+    "express": "^5.1.0",
+    "path": "^0.12.7"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
