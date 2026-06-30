@@ -123,11 +123,28 @@ function setupMiddleware() {
         const frontendPath = path.join(process.cwd(), resolvedConfig.frontendPath);
         const appPath = resolvedConfig.basePath ? resolvedConfig.basePath + '/app' : '/app';
 
+        // Serve inner.html regardless of whether it was placed in src/ or src/html/
+        const innerHtmlRoute = async (req, res) => {
+            const candidates = [
+                path.join(frontendPath, 'inner.html'),
+                path.join(frontendPath, 'html', 'inner.html')
+            ];
+            for (const candidate of candidates) {
+                try {
+                    await fs.access(candidate);
+                    return res.sendFile(candidate);
+                } catch {}
+            }
+            res.status(404).send('inner.html not found. Place it in your frontend folder (src/ or src/html/).');
+        };
+
         if (resolvedConfig.basePath) {
             app.get(resolvedConfig.basePath + '/html/index.html', (req, res) =>
                 res.sendFile(path.join(frontendPath, 'html', 'index.html')));
             app.get(resolvedConfig.basePath + '/html/index', (req, res) =>
                 res.sendFile(path.join(frontendPath, 'html', 'index.html')));
+            app.get(resolvedConfig.basePath + '/inner.html', innerHtmlRoute);
+            app.get(resolvedConfig.basePath + '/html/inner.html', innerHtmlRoute);
             app.use(resolvedConfig.basePath, express.static(frontendPath));
             app.get(resolvedConfig.basePath + '/app', (req, res) =>
                 res.sendFile(path.join(frontendPath, 'html', 'index.html')));
@@ -138,6 +155,8 @@ function setupMiddleware() {
                 res.sendFile(path.join(frontendPath, 'html', 'index.html')));
             app.get('/html/index', (req, res) =>
                 res.sendFile(path.join(frontendPath, 'html', 'index.html')));
+            app.get('/inner.html', innerHtmlRoute);
+            app.get('/html/inner.html', innerHtmlRoute);
             app.use(express.static(frontendPath));
             app.get('/app', (req, res) =>
                 res.sendFile(path.join(frontendPath, 'html', 'index.html')));
@@ -196,6 +215,7 @@ function setupAPIRoutes() {
             calendar: '',
             currentWeek: new Date().toISOString(),
             info: info || '',
+            attributes: [],
             permanentHours: { "0": {}, "1": {}, "2": {}, "3": {}, "4": {} }
         };
 
@@ -210,7 +230,7 @@ function setupAPIRoutes() {
     // PUT /timetables/:name — update timetable
     app.put(api + '/timetables/:name', async (req, res) => {
         const { name } = req.params;
-        const { fileId, data, info, calendar, currentWeek, permanentHours } = req.body;
+        const { fileId, data, info, calendar, currentWeek, permanentHours, attributes } = req.body;
         if (!fileId) return res.status(400).json({ success: false, error: 'FileId is required' });
 
         const filePath = path.join(DATA_DIR, `${fileId}.json`);
@@ -218,7 +238,7 @@ function setupAPIRoutes() {
 
         let existing = {
             className: name, fileId, data: {}, calendar: '', currentWeek: new Date().toISOString(),
-            info: '', permanentHours: { "0": {}, "1": {}, "2": {}, "3": {}, "4": {} }
+            info: '', attributes: [], permanentHours: { "0": {}, "1": {}, "2": {}, "3": {}, "4": {} }
         };
 
         try { existing = { ...existing, ...JSON.parse(await fs.readFile(filePath, 'utf8')) }; } catch {}
@@ -229,6 +249,7 @@ function setupAPIRoutes() {
             calendar: calendar !== undefined ? calendar : existing.calendar,
             currentWeek: currentWeek !== undefined ? currentWeek : existing.currentWeek,
             info: info !== undefined ? info : existing.info,
+            attributes: attributes !== undefined ? attributes : (existing.attributes || []),
             permanentHours: permanentHours !== undefined ? permanentHours : existing.permanentHours
         };
 
@@ -254,6 +275,18 @@ function setupAPIRoutes() {
             res.status(404).json({ success: false, error: 'Timetable not found' });
         } catch (error) {
             res.status(500).json({ success: false, error: 'Failed to read timetable' });
+        }
+    });
+
+    // DELETE /timetables/file/:fileId — delete a single timetable
+    app.delete(api + '/timetables/file/:fileId', async (req, res) => {
+        try {
+            const filePath = path.join(DATA_DIR, `${req.params.fileId}.json`);
+            await fs.unlink(filePath);
+            res.json({ success: true });
+        } catch (error) {
+            if (error.code === 'ENOENT') return res.json({ success: true }); // already gone
+            res.status(500).json({ success: false, error: 'Failed to delete timetable' });
         }
     });
 
