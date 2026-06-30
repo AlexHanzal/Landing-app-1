@@ -103,7 +103,70 @@
     width: 100%; /* Ensure it spans the full width */
     z-index: 1000; /* Ensure it stays above the sidebars */
   }
-  
+
+  /* Hotbar styling */
+  .hotbar {
+    position: fixed;
+    top: 10%;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: var(--sidebar-bg);
+    border-bottom: 1px solid #d9d9d9;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 15px;
+    z-index: 999;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  #class-dropdown {
+    flex: 1;
+    max-width: 300px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 1em;
+    cursor: pointer;
+    color: #333;
+  }
+
+  #class-dropdown:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 4px rgba(80, 176, 255, 0.3);
+  }
+
+  .hotbar .create-new,
+  .hotbar #accounts-button {
+    padding: 8px 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.2s;
+  }
+
+  .hotbar #accounts-button {
+    margin-left: auto;
+  }
+
+  .hotbar .create-new:hover,
+  .hotbar #accounts-button:hover {
+    background-color: #3d8fd1;
+  }
+
+  /* Update sidebar to start below hotbar */
+  .sidebar {
+    top: calc(10% + 60px);
+    height: calc(90% - 60px);
+  }
+
   ul {
     list-style-type: none;
     padding: 0;
@@ -245,11 +308,10 @@
     padding: 18px;
 
     position: absolute;
-    top: var(--header-height);
-    left: var(--sidebar-width);
-    width: calc(99% - var(--sidebar-width));
+    top: calc(var(--header-height) + 60px);
+    width: 100%;
     height: auto;
-    min-height: calc(90vh - var(--header-height));
+    min-height: calc(90vh - var(--header-height) - 60px);
     overflow: visible;
     text-align: center;
     font-size: 0.9em;
@@ -350,15 +412,14 @@
   
   .timetable-content {
     display: flex;
-    flex-direction: column;
     gap: 10px;
     height: auto;
     min-height: auto;
     padding: 10px;
-    align-items: center;
+    align-items: flex-start;
     overflow: visible;
-  }
-  
+    flex-direction: row;
+}
   .table-container {
     width: 95%;
     height: auto;
@@ -367,14 +428,14 @@
     overflow: visible;
   }
   
-  .bottom-content {
+.bottom-content {
     display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: start;
-    width: 95%;
-    gap: 15px; /* Set consistent gap */
+    width: 30%;
+    gap: 15px;
     margin-top: 2px;
-  }
+    grid-auto-flow: row;
+    justify-items: start;
+}
   
   .time-table-buttons {
     display: flex;
@@ -673,7 +734,7 @@
     max-height: 200px; /* Reduced from 250px */
     font-size: 0.85em;
     margin: 0;
-    padding: 3px 15px; /* Reduced top/bottom padding from 5px to 3px */
+   
     height: auto;
     overflow: visible;
     order: 2;
@@ -720,11 +781,6 @@
     font-size: 0.9em;
 }
 
-.edit-button,
-.save-button {
-    margin-left: auto;  /* Push to the right */
-    margin-right: 15px;
-}
 
 .save-button {
     display: none; /* Initially hidden */
@@ -1432,7 +1488,7 @@ body.debug-mode {
 
 /* Login styles */
 #login-button {
-    padding: 8px 16px;
+    width: 8.5em;
     background-color: var(--bakalar-color-basic);
     color: black;
     border: 2px solid var(--primary-color);
@@ -1441,6 +1497,8 @@ body.debug-mode {
     font-weight: bold;
     font-size: 1em;
     transition: all 0.2s ease;
+    padding: 8px 5px;
+    margin-left: auto;
 }
 
 #login-button:hover {
@@ -1809,13 +1867,12 @@ body.debug-mode {
     background-color: var(--primary-color);
     color: white;
     position: relative;
-    padding-right: 60px; /* More room for the logout icon */
-    padding-left: 15px; /* More padding on the left */
-    margin: 10px; /* Add margin all around */
-    font-size: 0.8em; /* Slightly larger text */
-    border: 2px solid var(--bakalar-color-basic); /* Black border */
+    margin: 10px; 
+    width: 8.5em;
+    border: 2px solid var(--primary-color);
+    font-size: 1em; 
     display: flex;
-    align-items: center; /* Vertically center content */
+    align-items: center; 
 }
 
 #login-button.logged-in::after {
@@ -1862,7 +1919,7 @@ body.debug-mode {
     cursor: pointer;
     font-weight: bold;
     transition: all 0.2s ease;
-    margin-left: 10px;
+  
     position: relative;
     display: none; /* Hidden by default, shown in admin mode by JS */
     z-index: 100; /* Ensure it's above other elements */
@@ -1890,13 +1947,15 @@ body.debug-mode {
 /* Container for time table buttons */
 .time-table-buttons {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 10px;
-    margin: 10px 0;
+    /* margin: 10px 0; */
     padding: 5px;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
 }
-
 /* Add or update styles for today's highlighting in the timetable */
 .today-cell {
   background-color: var(--highlight-cell-color) !important; /* Bright yellow */
@@ -2095,8 +2154,8 @@ body.debug-mode {
     padding: 5px;
     font-size: 0.9em;
     left: 0;
-    top: 10%;
-    height: 90%;
+    top: calc(10% + 60px);
+    height: calc(90% - 60px);
     z-index: 1001;
   }
   .sidebar ul {
@@ -2154,6 +2213,47 @@ body.debug-mode {
     font-size: 0.55em;
   }
 }
+  .sidebar ul {
+    flex-direction: column;
+    gap: 0;
+  }
+  .sidebar li {
+    margin: 0;
+    padding: 0;
+  }
+  #dynamic-links-container {
+    flex-direction: column;
+    gap: 5px;
+  }
+  .dynamic-button, .button-group {
+    width: 100%;
+    min-width: 40px;
+    max-width: 100%;
+    font-size: 1em;
+    padding: 8px 4px;
+  }
+  .gear-icon {
+    right: -30px;
+    min-width: 10px;
+    font-size: 1em;
+    padding: 8px;
+  }
+  #accounts-button, #accounts-button.admin-visible {
+    width: 4em;
+    font-size: 0.79em;
+    padding: 10px 5px;
+    position: static;
+    margin: 10px 0px;
+    left: unset;
+    transform: unset;
+    bottom: unset;
+    margin-left: auto;
+  }
+  
+  /* Make login button smaller for mobile */
+
+  
+
 
 @media (max-width: 700px) {
   header {
@@ -2161,6 +2261,25 @@ body.debug-mode {
     height: 60px;
     min-height: 60px;
     padding: 0 5px;
+  }
+  .hotbar {
+    top: 60px;
+    height: 50px;
+    gap: 5px;
+    padding: 0 10px;
+  }
+  .hotbar .create-new,
+  .hotbar #accounts-button {
+    padding: 6px 12px;
+    font-size: 0.9em;
+  }
+  .hotbar #accounts-button {
+    margin-left: auto;
+  }
+  #class-dropdown {
+    max-width: 200px;
+    font-size: 0.9em;
+    padding: 6px 8px;
   }
   .title {
     font-size: 0.6em; /* Half of 1.2em */
@@ -2177,7 +2296,7 @@ body.debug-mode {
     max-width: unset;
     height: auto;
     position: fixed;
-    top: 60px;
+    top: 110px;
     left: 0;
     flex-direction: row;
     display: flex;
@@ -2233,13 +2352,82 @@ body.debug-mode {
   }
   .time-table {
     left: 0;
-    top: 110px;
+    top: auto;
+    margin-top: 160px;
     width: 100vw;
     min-width: 0;
     padding: 8px 2px 40px 2px;
     font-size: 0.85em;
     margin-left: 0;
     border-radius: 0;
+  }
+  .week-table {
+    width: 100vw;
+    min-width: 0;
+    font-size: 0.85em;
+  }
+  .week-table th, .week-table td {
+    min-width: 40px;
+    font-size: 0.85em;
+    padding: 3px;
+    height: 24px;
+  }
+  .timetable-content, .table-container, .bottom-content {
+    width: 100vw;
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+  }
+  .timetable-calendar {
+    max-width: 100vw;
+    padding: 2px 2px;
+    font-size: 0.8em;
+  }
+  .calendar-table th, .calendar-table td {
+    width: 18px;
+    height: 18px;
+    font-size: 0.8em;
+    padding: 2px;
+  }
+  .select-window, .menu-content, .account-create-popup, .date-picker-window {
+    min-width: 90vw !important;
+    width: 90vw !important;
+    left: 5vw !important;
+    padding: 10px !important;
+    font-size: 1em;
+  }
+  .custom-alert, .class-edit-popup, .logout-confirm-content {
+    min-width: 90vw !important;
+    width: 90vw !important;
+    left: 5vw !important;
+    padding: 10px !important;
+    font-size: 1em;
+  }
+  .permanent-date-window {
+    min-width: 90vw !important;
+    width: 90vw !important;
+    left: 5vw !important;
+    padding: 10px !important;
+    font-size: 1em;
+  }
+  
+  /* Further reduce login button size */
+  #login-button {
+    padding: 3px 6px;
+    font-size: 0.45em;
+    border-width: 1px;
+  }
+  
+  #login-button.logged-in {
+    padding-right: 25px;
+    padding-left: 6px;
+    margin: 3px;
+    font-size: 0.35em;
+  }
+  
+  #login-button.logged-in::after {
+    right: 6px;
+    font-size: 0.5em;
   }
   .week-table {
     width: 100vw;
@@ -2318,11 +2506,30 @@ body.debug-mode {
     min-height: 44px;
     padding: 0 2px;
   }
+  .hotbar {
+    top: 44px;
+    height: 44px;
+    gap: 4px;
+    padding: 0 8px;
+  }
+  .hotbar .create-new,
+  .hotbar #accounts-button {
+    padding: 5px 10px;
+    font-size: 0.85em;
+  }
+  .hotbar #accounts-button {
+    margin-left: auto;
+  }
+  #class-dropdown {
+    max-width: 150px;
+    font-size: 0.85em;
+    padding: 5px 6px;
+  }
   .title {
     font-size: 0.5em; /* Half of 1em */
   }
   .sidebar {
-    top: 44px;
+    top: 88px;
     height: 44px;
     min-width: unset;
     max-width: unset;
@@ -2419,6 +2626,7 @@ body.debug-mode {
     gap: 20px;
     width: 100%;
     align-items: flex-start;
+    flex-direction: column;
 }
 
 .class-info-box {
@@ -2466,4 +2674,380 @@ body.debug-mode {
     padding: 8px;
     background-color: var(--third-color);
     border-radius: 4px;
+}
+
+/* ─── VYBRAT STŮL BUTTON ──────────────────────────────────────────────────── */
+
+.vybrat-stul-btn {
+    padding: 8px 18px;
+    font-size: 1em;
+    font-weight: bold;
+    background-color: var(--bakalar-color-basic);
+    color: black;
+    border: 2px solid var(--primary-color);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vybrat-stul-btn:hover:not(:disabled) {
+    background-color: var(--bakalar-color-hover);
+    color: var(--primary-color);
+}
+
+.vybrat-stul-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ─── TABLE FILTER PANEL ─────────────────────────────────────────────────── */
+
+.table-filter-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.45);
+    z-index: 1800;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.table-filter-overlay.active {
+    opacity: 1;
+}
+
+.table-filter-panel {
+    display: none;
+    position: fixed;
+    top: 0; right: 0;
+    width: 380px;
+    max-width: 95vw;
+    height: 100%;
+    background-color: var(--secondary-color);
+    border-left: 2px solid var(--primary-color);
+    z-index: 1900;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+}
+
+.table-filter-panel.active {
+    transform: translateX(0);
+}
+
+.filter-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 2px solid var(--primary-color);
+    background-color: var(--header-bg);
+}
+
+.filter-panel-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.2em;
+}
+
+.close-filter-panel {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 4px;
+    line-height: 1;
+}
+
+.close-filter-panel:hover {
+    background-color: var(--bakalar-color-hover);
+}
+
+.filter-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.filter-attributes-section h4,
+.filter-results-section h4 {
+    margin: 0 0 10px 0;
+    color: var(--primary-color);
+    font-size: 1em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.filter-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.95em;
+    padding: 6px 10px;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    transition: background 0.15s;
+}
+
+.filter-checkbox-label:hover {
+    background-color: var(--highlight-color);
+}
+
+.filter-checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary-color);
+    cursor: pointer;
+}
+
+.filter-checkbox-label input[type="checkbox"]:checked + span,
+.filter-checkbox-label:has(input:checked) {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.no-attributes-msg,
+.no-tables-msg {
+    color: #999;
+    font-style: italic;
+    font-size: 0.9em;
+    margin: 0;
+}
+
+.filter-results {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-table-card {
+    padding: 12px 14px;
+    border: 2px solid var(--primary-color);
+    border-radius: 7px;
+    cursor: pointer;
+    background-color: var(--bakalar-color-basic);
+    transition: all 0.18s ease;
+}
+
+.filter-table-card:hover {
+    background-color: var(--bakalar-color-hover);
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.filter-table-card.selected {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.filter-table-card.selected .attr-tag {
+    background-color: rgba(255,255,255,0.25);
+    color: white;
+    border-color: rgba(255,255,255,0.4);
+}
+
+.filter-card-name {
+    font-weight: bold;
+    font-size: 1em;
+    margin-bottom: 6px;
+}
+
+.filter-card-attrs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.attr-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background-color: var(--highlight-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 12px;
+    font-size: 0.8em;
+    color: black;
+}
+
+.no-attr-hint {
+    font-size: 0.8em;
+    color: #aaa;
+    font-style: italic;
+}
+
+/* ─── ATTRIBUTES ADMIN SECTION (in class edit popup) ─────────────────────── */
+
+.attributes-admin-section {
+    margin: 14px 0;
+}
+
+.attributes-admin-section > label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: var(--primary-color);
+}
+
+.attr-input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.attr-input-row input {
+    flex: 1;
+    padding: 7px 10px;
+    border: 2px solid var(--primary-color);
+    border-radius: 5px;
+    font-size: 0.9em;
+    background-color: var(--bakalar-color-basic);
+}
+
+.attr-add-btn {
+    padding: 7px 12px;
+    background-color: var(--primary-color);
+    color: white;
+    border: 2px solid var(--primary-color);
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    white-space: nowrap;
+    font-size: 0.9em;
+}
+
+.attr-add-btn:hover {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+.attr-tags-edit {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 32px;
+}
+
+.editable-tag {
+    position: relative;
+    padding-right: 4px;
+}
+
+.attr-remove-btn {
+    background: none;
+    border: none;
+    color: #cc0000;
+    cursor: pointer;
+    font-size: 1em;
+    padding: 0 2px;
+    line-height: 1;
+    margin-left: 2px;
+    font-weight: bold;
+}
+
+.attr-remove-btn:hover {
+    color: #ff0000;
+}
+
+@media (max-width: 700px) {
+    .table-filter-panel {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* ─── FILTER CARD ADMIN EDIT BUTTON ─────────────────────────────────────── */
+
+.filter-table-card {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.filter-card-main {
+    flex: 1;
+    padding: 12px 14px;
+    cursor: pointer;
+    min-width: 0;
+}
+
+.filter-card-edit-btn {
+    flex-shrink: 0;
+    width: 42px;
+    background: none;
+    border: none;
+    border-left: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    font-size: 1.1em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.filter-card-edit-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.filter-table-card.selected .filter-card-edit-btn {
+    border-left-color: rgba(255,255,255,0.4);
+    color: white;
+}
+
+.filter-table-card.selected .filter-card-edit-btn:hover {
+    background-color: rgba(255,255,255,0.2);
+}
+
+/* ─── INFO BOX ATTRIBUTE TAGS ────────────────────────────────────────────── */
+
+.info-attr-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 6px 0 8px;
+}
+
+.info-attr-tags .attr-tag {
+    font-size: 0.78em;
+    padding: 2px 9px;
+}
+
+/* ─── INNER SITE BUTTON ──────────────────────────────────────────────────── */
+
+.inner-site-btn {
+    padding: 8px 16px;
+    font-size: 0.95em;
+    font-weight: bold;
+    background-color: var(--primary-color);
+    color: white;
+    border: 2px solid var(--primary-color);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.inner-site-btn:hover {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
 }

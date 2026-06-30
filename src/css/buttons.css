@@ -6,7 +6,7 @@
     font-size: 2em;
     width: 40px;
     height: 40px;
-    margin: 20px auto 0;  /* Changed margin to auto for horizontal centering */
+    
     border-radius: 50%;
     background-color: transparent;
     color: var(--primary-color);
@@ -119,6 +119,7 @@
     cursor: pointer;
     font-weight: bold;
     text-align: center;
+    width: 100%;
 }
 
 .edit-button:hover {
@@ -136,6 +137,7 @@
     cursor: pointer;
     font-weight: bold;
     text-align: center;
+    width: 100%;
 }
 
 .save-button:hover {

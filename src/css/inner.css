@@ -1,0 +1,734 @@
+:root {
+    /* Aliases onto the shared design tokens from styles.css, so this page
+       stays in sync automatically if the main site's theme changes. */
+    --ink: var(--primary-color, #2b2b2b);
+    --paper: var(--third-color, #f1f1f1);
+    --panel: var(--bakalar-color-basic, #ffffff);
+    --line: #d9d9d9;
+    --accent: var(--primary-color, #50b0ff);
+    --accent-deep: #2f8ee0;
+    --ok: #3f9142;
+    --warn: #c2922f;
+    --danger: #d9534f;
+    --muted: #777777;
+    --mono: 'Courier New', monospace;
+    --serif: var(--font-family, Arial, Helvetica, sans-serif);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: var(--font-family, Arial, Helvetica, sans-serif);
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+}
+
+/* ─── HEADER ─────────────────────────────────────────────────────────── */
+
+.inn-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    background: var(--panel);
+    color: var(--ink);
+    border-bottom: 1px solid #d9d9d9;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+
+.inn-topbar h1 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.4em;
+    font-weight: bold;
+    margin: 0;
+    color: var(--accent-deep);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.inn-topbar h1 .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.45em;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.inn-topbar-meta {
+    font-family: var(--mono);
+    font-size: 0.82em;
+    color: var(--muted);
+    display: flex;
+    gap: 18px;
+    align-items: center;
+}
+
+.inn-conn-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--ok);
+    display: inline-block;
+    margin-right: 6px;
+    box-shadow: 0 0 0 3px rgba(63,122,79,0.25);
+}
+.inn-conn-dot.bad { background: var(--danger); box-shadow: 0 0 0 3px rgba(181,54,54,0.25); }
+
+/* ─── LAYOUT ─────────────────────────────────────────────────────────── */
+
+.inn-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    min-height: calc(100vh - 70px);
+}
+
+/* ─── SIDEBAR ────────────────────────────────────────────────────────── */
+
+.inn-sidebar {
+    border-right: 2px solid var(--line);
+    background: var(--panel);
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    overflow-y: auto;
+}
+
+.inn-sidebar-section h2 {
+    font-family: var(--mono);
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    color: var(--muted);
+    margin: 0 0 10px 2px;
+}
+
+.inn-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.inn-summary-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 12px;
+}
+
+.inn-summary-card .num {
+    font-family: var(--serif);
+    font-size: 1.6em;
+    line-height: 1;
+    color: var(--accent-deep);
+}
+
+.inn-summary-card .label {
+    font-size: 0.72em;
+    color: var(--muted);
+    margin-top: 4px;
+}
+
+.inn-table-nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.inn-table-nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.12s ease;
+    font-size: 0.92em;
+}
+
+.inn-table-nav-item:hover {
+    background: var(--paper);
+    border-color: var(--line);
+}
+
+.inn-table-nav-item.active {
+    background: var(--ink);
+    color: var(--paper);
+}
+
+.inn-table-nav-item .tn-name {
+    font-weight: 600;
+}
+
+.inn-table-nav-item .tn-count {
+    font-family: var(--mono);
+    font-size: 0.78em;
+    color: var(--muted);
+}
+
+.inn-table-nav-item.active .tn-count {
+    color: #cfc8b4;
+}
+
+.inn-new-table-btn {
+    width: 100%;
+    padding: 9px;
+    border: 1.5px dashed var(--line);
+    background: none;
+    border-radius: 6px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.85em;
+    margin-top: 6px;
+}
+
+.inn-new-table-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.inn-filter-search {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 0.88em;
+    margin-bottom: 10px;
+    background: var(--paper);
+    font-family: inherit;
+}
+
+/* ─── MAIN ───────────────────────────────────────────────────────────── */
+
+.inn-main {
+    padding: 26px 32px;
+    overflow-y: auto;
+    max-height: calc(100vh - 70px);
+}
+
+.inn-view-toggle {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 22px;
+}
+
+.inn-view-toggle button {
+    padding: 7px 16px;
+    border: 1.5px solid var(--line);
+    background: var(--panel);
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.inn-view-toggle button.active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+}
+
+/* Empty state */
+.inn-empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+}
+.inn-empty-state .big {
+    font-family: var(--serif);
+    font-size: 1.4em;
+    margin-bottom: 8px;
+    color: var(--ink);
+}
+
+/* ─── OVERVIEW (ALL TABLES) ──────────────────────────────────────────── */
+
+.inn-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 16px;
+}
+
+.inn-overview-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0;
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+}
+
+.inn-overview-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+}
+
+.inn-overview-card.has-today {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+}
+
+.inn-oc-header {
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.inn-oc-title {
+    font-family: var(--serif);
+    font-size: 1.15em;
+    font-weight: 700;
+    margin-right: auto;
+}
+
+.inn-oc-today-badge {
+    font-family: var(--mono);
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: white;
+    background: var(--accent);
+    padding: 3px 9px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.inn-oc-edit-btn {
+    border: 1px solid var(--line);
+    background: var(--paper);
+    border-radius: 5px;
+    padding: 4px 9px;
+    cursor: pointer;
+    font-size: 0.85em;
+    color: var(--ink);
+    flex-shrink: 0;
+}
+.inn-oc-edit-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.inn-oc-attrs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 10px 16px 0;
+}
+
+.inn-oc-tag {
+    font-size: 0.74em;
+    padding: 2px 8px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: var(--muted);
+}
+
+.inn-oc-body {
+    padding: 12px 16px 16px;
+}
+
+.inn-oc-stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85em;
+    color: var(--muted);
+    margin-bottom: 10px;
+}
+
+.inn-oc-stat-row b { color: var(--ink); font-family: var(--mono); }
+
+.inn-oc-upcoming-label {
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 6px;
+    margin-top: 12px;
+}
+
+.inn-oc-upcoming-label:first-of-type { margin-top: 0; }
+
+.inn-oc-today-label {
+    color: var(--accent-deep);
+    font-weight: 700;
+}
+
+.inn-oc-booking-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    margin: 0 -8px;
+    border-top: 1px solid #efebe0;
+    font-size: 0.86em;
+    border-radius: 6px;
+}
+
+.inn-oc-booking-row:first-of-type { border-top: none; }
+
+.inn-oc-booking-today {
+    background: rgba(80, 176, 255, 0.08);
+}
+
+.inn-oc-booking-today .inn-oc-booking-time {
+    color: var(--accent-deep);
+}
+
+.inn-oc-booking-time {
+    font-family: var(--mono);
+    color: var(--accent-deep);
+    font-weight: 700;
+    flex-shrink: 0;
+    width: 92px;
+    line-height: 1.3;
+}
+.inn-oc-booking-time small {
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 0.82em;
+}
+
+.inn-oc-booking-who {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.inn-status-pill {
+    font-size: 0.68em;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+.inn-status-pill.unpaid { background: #f3e0d2; color: var(--warn); }
+.inn-status-pill.paid { background: #dfeee2; color: var(--ok); }
+.inn-status-pill.noorder { background: #ece9de; color: var(--muted); }
+
+.inn-oc-empty-note {
+    font-size: 0.85em;
+    color: var(--muted);
+    font-style: italic;
+    padding: 4px 0;
+}
+
+/* ─── TABLE DETAIL VIEW ──────────────────────────────────────────────── */
+
+.inn-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.inn-detail-title-block h2 {
+    font-family: var(--serif);
+    font-size: 1.7em;
+    margin: 0 0 4px;
+}
+
+.inn-detail-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.inn-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1.5px solid var(--line);
+    background: var(--panel);
+    cursor: pointer;
+    font-size: 0.88em;
+    font-weight: 600;
+    color: var(--ink);
+}
+.inn-btn:hover { border-color: var(--accent); color: var(--accent); }
+.inn-btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+.inn-btn.primary:hover { background: var(--accent-deep); border-color: var(--accent-deep); color: white; }
+.inn-btn.danger { color: var(--danger); border-color: var(--danger); background: var(--panel); }
+.inn-btn.danger:hover { background: var(--danger); color: white; }
+
+.inn-detail-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+@media (max-width: 1000px) {
+    .inn-detail-panels { grid-template-columns: 1fr; }
+}
+
+.inn-panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 20px;
+}
+
+.inn-panel h3 {
+    font-family: var(--mono);
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin: 0 0 14px;
+}
+
+.inn-field-group { margin-bottom: 14px; }
+.inn-field-group:last-child { margin-bottom: 0; }
+
+.inn-field-group label {
+    display: block;
+    font-size: 0.82em;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--ink);
+}
+
+.inn-field-group input[type="text"],
+.inn-field-group textarea {
+    width: 100%;
+    padding: 9px 11px;
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.92em;
+    background: var(--paper);
+}
+
+.inn-field-group textarea { resize: vertical; min-height: 60px; }
+
+.inn-attr-edit-row {
+    display: flex;
+    gap: 7px;
+    margin-bottom: 10px;
+}
+.inn-attr-edit-row input {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.88em;
+    background: var(--paper);
+}
+.inn-attr-add-btn-small {
+    padding: 8px 12px;
+    border: none;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.inn-attr-tag-edit-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.inn-attr-tag-removable {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 6px 4px 10px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-size: 0.8em;
+}
+
+.inn-attr-tag-removable button {
+    border: none;
+    background: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.05em;
+    line-height: 1;
+    padding: 0 2px;
+}
+
+/* Bookings table */
+.inn-bookings-panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 20px;
+}
+
+.inn-bookings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88em;
+}
+
+.inn-bookings-table th {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 8px 10px;
+    border-bottom: 2px solid var(--line);
+}
+
+.inn-bookings-table td {
+    padding: 10px;
+    border-bottom: 1px solid #efebe0;
+    vertical-align: top;
+}
+
+.inn-bookings-table tr:last-child td { border-bottom: none; }
+
+.inn-bk-date {
+    font-family: var(--mono);
+    font-weight: 700;
+    color: var(--accent-deep);
+    white-space: nowrap;
+}
+
+.inn-bk-time {
+    font-family: var(--mono);
+    white-space: nowrap;
+}
+
+.inn-bk-content-input {
+    width: 100%;
+    border: 1px solid transparent;
+    background: none;
+    font-family: inherit;
+    font-size: 0.95em;
+    padding: 4px 6px;
+    border-radius: 4px;
+}
+.inn-bk-content-input:hover, .inn-bk-content-input:focus {
+    border-color: var(--line);
+    background: var(--paper);
+    outline: none;
+}
+
+.inn-perm-badge {
+    font-size: 0.68em;
+    font-family: var(--mono);
+    background: #e6e1f0;
+    color: #5b4b8a;
+    padding: 2px 7px;
+    border-radius: 8px;
+    margin-left: 6px;
+}
+
+.inn-bk-delete-btn {
+    border: none;
+    background: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 1.1em;
+    padding: 2px 6px;
+}
+.inn-bk-delete-btn:hover { color: #7a1f1f; }
+
+.inn-future-note {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    font-size: 0.82em;
+    color: var(--muted);
+    background: var(--paper);
+}
+.inn-future-note b { color: var(--ink); }
+
+/* Toast */
+.inn-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 0.88em;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.25s ease;
+    pointer-events: none;
+    z-index: 500;
+}
+.inn-toast.show { opacity: 1; transform: translateY(0); }
+.inn-toast.error { background: var(--danger); }
+
+/* Modal (new table) */
+.inn-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(31,36,33,0.55);
+    z-index: 800;
+    align-items: center;
+    justify-content: center;
+}
+.inn-modal-overlay.active { display: flex; }
+.inn-modal-box {
+    background: var(--panel);
+    border-radius: 10px;
+    padding: 24px 26px;
+    width: 360px;
+    max-width: 90vw;
+}
+.inn-modal-box h3 {
+    font-family: var(--serif);
+    margin: 0 0 16px;
+}
+.inn-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 18px;
+}
+
+/* Login gate */
+.inn-gate-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--ink);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.inn-gate-box {
+    background: var(--panel);
+    border-radius: 10px;
+    padding: 30px 32px;
+    width: 360px;
+    max-width: 90vw;
+    text-align: center;
+}
+.inn-gate-box h2 {
+    font-family: var(--serif);
+    margin: 0 0 8px;
+}
+.inn-gate-box p {
+    color: var(--muted);
+    font-size: 0.9em;
+    margin: 0 0 18px;
+}
