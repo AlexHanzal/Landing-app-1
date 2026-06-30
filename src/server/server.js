@@ -205,6 +205,73 @@ function setupAPIRoutes() {
         }
     });
 
+    // PUT update timetable by class name
+    app.put(`${api}/timetables/:name`, async (req, res) => {
+        try {
+            const files = await fs.readdir(DATA_DIR);
+
+            for (const file of files) {
+                const filePath = path.join(DATA_DIR, file);
+                const data = JSON.parse(await fs.readFile(filePath, "utf8"));
+
+                if (data.className === req.params.name) {
+                    const updated = {
+                        ...data,
+                        ...req.body,
+                        className: data.className // never let body overwrite the name via this route
+                    };
+                    await fs.writeFile(filePath, JSON.stringify(updated, null, 2));
+                    return res.json({ success: true });
+                }
+            }
+
+            res.status(404).json({ error: "Not found" });
+        } catch {
+            res.status(500).json({ error: "Server error" });
+        }
+    });
+
+    // DELETE a single timetable by its fileId
+    app.delete(`${api}/timetables/file/:fileId`, async (req, res) => {
+        try {
+            await fs.unlink(path.join(DATA_DIR, `${req.params.fileId}.json`));
+            res.json({ success: true });
+        } catch {
+            res.status(404).json({ error: "Not found" });
+        }
+    });
+
+    // DELETE timetable by class name (body {name}), or ALL timetables if no body/name given
+    app.delete(`${api}/timetables`, async (req, res) => {
+        try {
+            const { name } = req.body || {};
+            const files = await fs.readdir(DATA_DIR);
+
+            if (!name) {
+                // No name provided: wipe all timetables (used by debug "reset all")
+                await Promise.all(
+                    files.filter(f => f.endsWith(".json"))
+                        .map(f => fs.unlink(path.join(DATA_DIR, f)))
+                );
+                return res.json({ success: true, deleted: "all" });
+            }
+
+            for (const file of files) {
+                const filePath = path.join(DATA_DIR, file);
+                const data = JSON.parse(await fs.readFile(filePath, "utf8"));
+
+                if (data.className === name) {
+                    await fs.unlink(filePath);
+                    return res.json({ success: true });
+                }
+            }
+
+            res.status(404).json({ error: "Not found" });
+        } catch {
+            res.status(500).json({ error: "Server error" });
+        }
+    });
+
     // GET users (list, for login dropdown — passwords stripped)
     app.get(`${api}/users`, async (req, res) => {
         try {
