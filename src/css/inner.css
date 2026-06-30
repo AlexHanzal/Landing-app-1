@@ -500,7 +500,6 @@ body {
 }
 
 .inn-field-group input[type="text"],
-.inn-field-group select,
 .inn-field-group textarea {
     width: 100%;
     padding: 9px 11px;
