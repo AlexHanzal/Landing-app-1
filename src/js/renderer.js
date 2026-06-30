@@ -221,170 +221,18 @@ function updateClassInfo(timetableData) {
     const box = document.getElementById('class-info-box');
     if (!content || !box) return;
 
-    box.querySelector('h4').textContent = 'Zarezervovat stůl';
+    box.querySelector('h4').textContent = 'Info';
 
-    // Inline reservation form (replaces the old attribute tags / description box
-    // with the same fields that used to live in the "Zarezervovat" popup).
+    const attrs = timetableData.attributes || [];
+    const attrHTML = attrs.length > 0
+        ? `<div class="info-attr-tags">${attrs.map(a => `<span class="attr-tag">${a}</span>`).join('')}</div>`
+        : '';
+
     content.innerHTML = `
-        <div class="inn-field-group">
-            <label for="inline-res-day">Den</label>
-            <select id="inline-res-day"></select>
-        </div>
-        <div class="inn-field-group">
-            <label for="inline-res-hour">Čas</label>
-            <select id="inline-res-hour"></select>
-        </div>
-        <div class="inn-field-group">
-            <label for="inline-res-duration">Délka rezervace</label>
-            <select id="inline-res-duration"></select>
-        </div>
-        <div class="inn-field-group">
-            <label for="inline-res-name">Vaše jméno</label>
-            <input type="text" id="inline-res-name" placeholder="Jméno a příjmení">
-        </div>
-        <p style="font-size:0.8em; color:var(--muted, #777); margin:0 0 10px;">Ověření přes SMS bude přidáno později.</p>
-        <button class="inn-btn primary" id="inline-res-confirm" style="width:100%;">Potvrdit rezervaci</button>
+        <div class="class-name"><strong>${timetableData.className}</strong></div>
+        ${attrHTML}
+        <div class="class-description"><p>${timetableData.info?.trim() || '<em>Popis není k dispozici</em>'}</p></div>
     `;
-
-    populateInlineReservationDays();
-    populateInlineReservationHours();
-    populateInlineReservationDuration();
-
-    document.getElementById('inline-res-day')?.addEventListener('change', populateInlineReservationHours);
-    document.getElementById('inline-res-hour')?.addEventListener('change', populateInlineReservationDuration);
-    document.getElementById('inline-res-confirm')?.addEventListener('click', confirmInlineReservation);
-
-    if (currentUser.isLoggedIn && currentUser.name) {
-        const nameInput = document.getElementById('inline-res-name');
-        if (nameInput) nameInput.value = currentUser.name;
-    }
-}
-
-// Builds the day dropdown (Mon–Fri) from the currently displayed week.
-function populateInlineReservationDays() {
-    const daySelect = document.getElementById('inline-res-day');
-    if (!daySelect || !currentTimetableName || !timetables[currentTimetableName]) return;
-
-    const startOfWeek = getStartOfWeek(new Date(timetables[currentTimetableName].currentWeek));
-    const weekdays = translations[currentLanguage].weekdays.slice(0, 5);
-
-    daySelect.innerHTML = '';
-    for (let i = 0; i < 5; i++) {
-        const dayDate = new Date(startOfWeek);
-        dayDate.setDate(startOfWeek.getDate() + i);
-        const opt = document.createElement('option');
-        opt.value = String(i);
-        opt.textContent = `${weekdays[i]} ${dayDate.getDate()}.${dayDate.getMonth() + 1}.`;
-        daySelect.appendChild(opt);
-    }
-}
-
-// Builds the hour dropdown, skipping hours that are already taken.
-function populateInlineReservationHours() {
-    const hourSelect = document.getElementById('inline-res-hour');
-    const daySelect = document.getElementById('inline-res-day');
-    if (!hourSelect || !daySelect || !currentTimetableName || !timetables[currentTimetableName]) return;
-
-    const t = timetables[currentTimetableName];
-    const startOfWeek = getStartOfWeek(new Date(t.currentWeek));
-    const dayIndex = parseInt(daySelect.value);
-    const dayDate = new Date(startOfWeek);
-    dayDate.setDate(startOfWeek.getDate() + dayIndex);
-    const dateString = getDateString(dayDate);
-
-    hourSelect.innerHTML = '';
-    RESERVATION_HOURS.forEach((label, i) => {
-        const hourIndex = i + 1;
-        if (!isHourFree(t, dateString, dayIndex, hourIndex)) return;
-        const opt = document.createElement('option');
-        opt.value = String(hourIndex);
-        opt.textContent = label;
-        hourSelect.appendChild(opt);
-    });
-
-    if (hourSelect.options.length === 0) {
-        const opt = document.createElement('option');
-        opt.value = '';
-        opt.textContent = 'Žádný volný čas';
-        hourSelect.appendChild(opt);
-    }
-
-    populateInlineReservationDuration();
-}
-
-function populateInlineReservationDuration() {
-    const durationSelect = document.getElementById('inline-res-duration');
-    const hourSelect = document.getElementById('inline-res-hour');
-    if (!durationSelect || !hourSelect) return;
-
-    const hourIndex = parseInt(hourSelect.value);
-    durationSelect.innerHTML = '';
-    if (!hourIndex) return;
-
-    const maxLen = Math.min(4, 12 - hourIndex + 1);
-    for (let h = 1; h <= maxLen; h++) {
-        const opt = document.createElement('option');
-        opt.value = String(h);
-        opt.textContent = `${h} ${h === 1 ? 'hodina' : (h < 5 ? 'hodiny' : 'hodin')}`;
-        durationSelect.appendChild(opt);
-    }
-}
-
-function confirmInlineReservation() {
-    const name = currentTimetableName;
-    const t = timetables[name];
-    if (!t) return;
-
-    const daySelect = document.getElementById('inline-res-day');
-    const hourSelect = document.getElementById('inline-res-hour');
-    const durationSelect = document.getElementById('inline-res-duration');
-    const nameInput = document.getElementById('inline-res-name');
-
-    const dayIndex = parseInt(daySelect?.value);
-    const startHour = parseInt(hourSelect?.value);
-    const duration = parseInt(durationSelect?.value) || 1;
-    const guestName = (nameInput?.value || '').trim();
-
-    if (isNaN(dayIndex) || !startHour) {
-        showReservationToast('Vyberte prosím den a čas.', true);
-        return;
-    }
-    if (!guestName) {
-        showReservationToast('Zadejte prosím své jméno.', true);
-        return;
-    }
-
-    const startOfWeek = getStartOfWeek(new Date(t.currentWeek));
-    const dayDate = new Date(startOfWeek);
-    dayDate.setDate(startOfWeek.getDate() + dayIndex);
-    const dateString = getDateString(dayDate);
-
-    for (let h = startHour; h < startHour + duration; h++) {
-        if (h > 12 || !isHourFree(t, dateString, dayIndex, h)) {
-            showReservationToast('Vybraná délka rezervace už není volná, zkuste kratší dobu.', true);
-            return;
-        }
-    }
-
-    if (!t.data) t.data = {};
-    if (!t.data[dateString]) t.data[dateString] = [];
-    if (!t.data[dateString][dayIndex]) t.data[dateString][dayIndex] = {};
-
-    const abbreviation = guestName.split(/\s+/).map(w => w[0]).join('').slice(0, 3).toUpperCase();
-
-    for (let h = startHour; h < startHour + duration; h++) {
-        t.data[dateString][dayIndex][h] = {
-            content: guestName,
-            abbreviation,
-            isPermanent: false
-        };
-    }
-
-    saveTimetable(name, t).then(() => {
-        showReservationToast(`Stůl "${name}" rezervován na ${RESERVATION_HOURS[startHour - 1].split('-')[0]}.`);
-        updateTimetableForWeek(new Date(t.currentWeek));
-        updateClassInfo(t);
-    });
 }
 
 function updateTimetableForWeek(date) {
