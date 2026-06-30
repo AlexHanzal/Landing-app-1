@@ -8,6 +8,7 @@
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="/reservation/css/styles.css">
     <link rel="stylesheet" href="/reservation/css/buttons.css">
+    <link rel="stylesheet" href="/reservation/css/inner.css">
     <style>
         /* Ensure proper scrolling behavior */
         html, body {
@@ -66,35 +67,71 @@
 
   <!-- Hotbar under header -->
   <div class="hotbar" id="hotbar">
-    <button id="vybrat-stul-btn" class="vybrat-stul-btn" disabled>Vybrat stůl</button>
+    <button id="vybrat-stul-btn" class="vybrat-stul-btn" disabled>Rezervovat stůl</button>
     <button class="create-new" id="create-new" title="Vytvořit novou třídu">+</button>
     <button id="accounts-button" title="Vytvořit uživatele">👤</button>
     <button id="inner-site-btn" class="inner-site-btn" title="Otevřít správu stolů" style="display:none;">⚙ Správa stolů</button>
     <button id="login-button">Přihlášení</button>
   </div>
 
-  <!-- Table filter panel -->
+  <!-- Reservation panel -->
   <div class="table-filter-overlay" id="table-filter-overlay"></div>
   <div class="table-filter-panel" id="table-filter-panel">
     <div class="filter-panel-header">
-      <h3>Vybrat stůl</h3>
+      <h3>Rezervace stolu</h3>
       <button class="close-filter-panel" id="close-filter-panel">×</button>
     </div>
     <div class="filter-panel-body">
+
+      <div class="inn-field-group">
+        <label for="reservation-date-input">Datum</label>
+        <input type="date" id="reservation-date-input">
+      </div>
+
+      <div class="inn-field-group">
+        <label for="reservation-time-select">Čas, kdy chcete přijít</label>
+        <select id="reservation-time-select">
+          <option value="">Vyberte čas</option>
+        </select>
+      </div>
+
       <div class="filter-attributes-section" id="filter-attributes-section">
-        <h4>Filtrovat podle vlastností</h4>
+        <h4>Vlastnosti stolu</h4>
         <div class="filter-checkboxes" id="filter-checkboxes">
           <p class="no-attributes-msg">Žádné vlastnosti nejsou k dispozici</p>
         </div>
       </div>
+
       <div class="filter-results-section">
         <h4>Dostupné stoly</h4>
         <div class="filter-results" id="filter-results">
-          <p class="no-tables-msg">Přihlaste se pro zobrazení stolů</p>
+          <p class="no-tables-msg">Nejprve vyberte datum a čas</p>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Reservation confirmation modal (duration + name) -->
+  <div class="inn-modal-overlay" id="reservationModal">
+    <div class="inn-modal-box">
+      <h3 id="reservationModalTitle">Zarezervovat stůl</h3>
+      <div class="inn-field-group">
+        <label for="reservation-duration-select">Délka rezervace</label>
+        <select id="reservation-duration-select"></select>
+      </div>
+      <div class="inn-field-group">
+        <label for="reservation-name-input">Vaše jméno</label>
+        <input type="text" id="reservation-name-input" placeholder="Jméno a příjmení">
+      </div>
+      <p style="font-size:0.8em; color:var(--muted, #777); margin:0;">Ověření přes SMS bude přidáno později.</p>
+      <div class="inn-modal-actions">
+        <button class="inn-btn" id="reservationModalCancelBtn">Zrušit</button>
+        <button class="inn-btn primary" id="reservationModalConfirmBtn">Potvrdit rezervaci</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="inn-toast" id="reservationToast"></div>
 
   <!-- Add login overlay and menu after header -->
   <div class="login-overlay" id="login-overlay"></div>
