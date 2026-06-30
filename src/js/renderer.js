@@ -183,7 +183,7 @@ function showTimetable(name) {
 
     const timeTable = document.querySelector('.time-table');
     timeTable.querySelector('h2').textContent = timetables[name].className;
-    timeTable.style.display = 'block';
+    timeTable.style.display = 'none';
     currentTimetableName = name;
 
     updateClassInfo(timetables[name]);
