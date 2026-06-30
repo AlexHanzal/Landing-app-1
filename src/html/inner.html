@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Správa stolů — Přehled</title>
+<link rel="icon" href="data:,">
+<!-- Shared design tokens / fonts from the customer-facing site -->
+<link rel="stylesheet" href="/reservation/css/styles.css">
+<link rel="stylesheet" href="/reservation/css/buttons.css">
+<!-- This page's own layout -->
+<link rel="stylesheet" href="/reservation/css/inner.css">
+</head>
+<body>
+
+<div class="inn-gate-overlay" id="gateOverlay">
+    <div class="inn-gate-box">
+        <h2>Správa stolů</h2>
+        <p>Toto okno se připojuje k API serveru rezervačního systému. Pokud se nenačte automaticky, zadejte adresu ručně.</p>
+        <div class="inn-field-group" style="text-align:left;">
+            <label for="gateApiInput">Adresa API serveru</label>
+            <input type="text" id="gateApiInput" placeholder="http://localhost:3000">
+        </div>
+        <div class="inn-modal-actions" style="justify-content:center; margin-top:14px;">
+            <button class="inn-btn primary" id="gateConnectBtn">Připojit</button>
+        </div>
+    </div>
+</div>
+
+<div class="inn-topbar">
+    <h1><span class="eyebrow">Interní</span> Správa stolů</h1>
+    <div class="inn-topbar-meta">
+        <span><span class="inn-conn-dot" id="connDot"></span><span id="connText">Připojování…</span></span>
+        <span id="clockText"></span>
+    </div>
+</div>
+
+<div class="inn-layout">
+    <aside class="inn-sidebar">
+        <div class="inn-sidebar-section">
+            <h2>Přehled</h2>
+            <div class="inn-summary-grid">
+                <div class="inn-summary-card">
+                    <div class="num" id="statTableCount">0</div>
+                    <div class="label">Stolů</div>
+                </div>
+                <div class="inn-summary-card">
+                    <div class="num" id="statBookingCount">0</div>
+                    <div class="label">Rezervací (budoucích)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="inn-sidebar-section" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+            <h2>Stoly</h2>
+            <input type="text" class="inn-filter-search" id="tableSearchInput" placeholder="Hledat stůl…">
+            <div class="inn-table-nav-list" id="tableNavList" style="overflow-y:auto;"></div>
+            <button class="inn-new-table-btn" id="newTableBtn">+ Nový stůl</button>
+        </div>
+    </aside>
+
+    <main class="inn-main">
+        <div class="inn-view-toggle">
+            <button class="active" id="viewOverviewBtn">Přehled všech stolů</button>
+            <button id="viewDetailBtn" disabled>Detail stolu</button>
+        </div>
+
+        <div id="overviewView"></div>
+        <div id="detailView" style="display:none;"></div>
+    </main>
+</div>
+
+<div class="inn-modal-overlay" id="newTableModal">
+    <div class="inn-modal-box">
+        <h3>Nový stůl</h3>
+        <div class="inn-field-group">
+            <label for="newTableName">Název / číslo stolu</label>
+            <input type="text" id="newTableName" placeholder="Např. Stůl 7">
+        </div>
+        <div class="inn-field-group">
+            <label for="newTableDesc">Popis (volitelné)</label>
+            <textarea id="newTableDesc" placeholder="Krátký popis stolu…"></textarea>
+        </div>
+        <div class="inn-modal-actions">
+            <button class="inn-btn" id="newTableCancelBtn">Zrušit</button>
+            <button class="inn-btn primary" id="newTableCreateBtn">Vytvořit</button>
+        </div>
+    </div>
+</div>
+
+<div class="inn-toast" id="toast"></div>
+
+<script>
+    // Configuration for API URL - same convention as index.html
+    window.API_BASE_URL = window.API_BASE_URL || `http://${window.location.hostname}:3000`;
+</script>
+<script src="/reservation/config.js"></script>
+<script src="/reservation/js/inner.js"></script>
+</body>
+</html>

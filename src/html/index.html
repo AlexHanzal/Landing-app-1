@@ -61,10 +61,40 @@
 <body>
   <header class="header" id="header">
     <h1 class="title">Rezervace</h1>
-    <div class="window-controls">
-        <button id="login-button">Přihlášení</button>
-    </div>
+  
   </header>
+
+  <!-- Hotbar under header -->
+  <div class="hotbar" id="hotbar">
+    <button id="vybrat-stul-btn" class="vybrat-stul-btn" disabled>Vybrat stůl</button>
+    <button class="create-new" id="create-new" title="Vytvořit novou třídu">+</button>
+    <button id="accounts-button" title="Vytvořit uživatele">👤</button>
+    <button id="inner-site-btn" class="inner-site-btn" title="Otevřít správu stolů" style="display:none;">⚙ Správa stolů</button>
+    <button id="login-button">Přihlášení</button>
+  </div>
+
+  <!-- Table filter panel -->
+  <div class="table-filter-overlay" id="table-filter-overlay"></div>
+  <div class="table-filter-panel" id="table-filter-panel">
+    <div class="filter-panel-header">
+      <h3>Vybrat stůl</h3>
+      <button class="close-filter-panel" id="close-filter-panel">×</button>
+    </div>
+    <div class="filter-panel-body">
+      <div class="filter-attributes-section" id="filter-attributes-section">
+        <h4>Filtrovat podle vlastností</h4>
+        <div class="filter-checkboxes" id="filter-checkboxes">
+          <p class="no-attributes-msg">Žádné vlastnosti nejsou k dispozici</p>
+        </div>
+      </div>
+      <div class="filter-results-section">
+        <h4>Dostupné stoly</h4>
+        <div class="filter-results" id="filter-results">
+          <p class="no-tables-msg">Přihlaste se pro zobrazení stolů</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Add login overlay and menu after header -->
   <div class="login-overlay" id="login-overlay"></div>
@@ -85,14 +115,8 @@
     <button id="submit-login">Přihlásit se</button>
   </div>
   
-  <!-- Replace the existing sidebar with this well-structured version -->
-  <aside class="sidebar">
-    <ul>
-      <li id="dynamic-links-container"><!-- Dynamic buttons will be added here --></li>
-      <li><button class="create-new" id="create-new">+</button></li>
-    </ul>
-    <button id="accounts-button">Vytvořit uživatele</button>
-  </aside>
+  
+  
 
   <!-- Keep only accounts overlay for account creation popup -->
   <div class="accounts-overlay" id="accounts-overlay"></div>
@@ -126,43 +150,61 @@
         <table class="week-table">
           <thead>
             <tr>
-              <th>Den</th>
-              <th>1</th>
-              <th>2</th>
-              <th>3</th>
-              <th>4</th>
-              <th>5</th>
-              <th>6</th>
-              <th>7</th>
-              <th>8</th>
-              <th>9</th>
-              <th>10</th>
+              <th>Čas</th>
+              <th>Pondělí</th>
+              <th>Úterý</th>
+              <th>Středa</th>
+              <th>Čtvrtek</th>
+              <th>Pátek</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Pondělí</td>
-              <td></td><td></td><td></td><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <td>Úterý</td>
-              <td></td><td></td><td></td><td></td><td></td>
+              <td>8:00-9:00</td>
               <td></td><td></td><td></td><td></td><td></td>
             </tr>
             <tr>
-              <td>Středa</td>
-              <td></td><td></td><td></td><td></td><td></td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <td>Čtvrtek</td>
-              <td></td><td></td><td></td><td></td><td></td>
+              <td>9:00-10:00</td>
               <td></td><td></td><td></td><td></td><td></td>
             </tr>
             <tr>
-              <td>Pátek</td>
+              <td>10:00-11:00</td>
               <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <td>11:00-12:00</td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <td>12:00-13:00</td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <td>13:00-14:00</td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <td>14:00-15:00</td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <td>15:00-16:00</td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <td>16:00-17:00</td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <td>17:00-18:00</td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <td>18:00-19:00</td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <td>19:00-20:00</td>
               <td></td><td></td><td></td><td></td><td></td>
             </tr>
           </tbody>
@@ -170,7 +212,7 @@
       </div>
       <div class="bottom-content">
         <div class="time-table-buttons">
-          <button class="edit-button">Zamluvit hodinu</button>
+          <button class="edit-button">Zamluvit stůl</button>
           <button class="save-button" style="display: none;">Uložit</button>
           
         </div>
@@ -183,7 +225,9 @@
           </div>
           <div class="timetable-calendar">
             <div class="calendar-header">
+              <button class="prev-button">&lt;</button>
               <h3 class="calendar-title" id="timetable-calendar-title"></h3>
+              <button class="next-button">&gt;</button>
             </div>
             <div class="calendar" id="timetable-calendar"></div>
           </div>
