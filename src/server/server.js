@@ -205,6 +205,56 @@ function setupAPIRoutes() {
         }
     });
 
+    // GET users (list, for login dropdown — passwords stripped)
+    app.get(`${api}/users`, async (req, res) => {
+        try {
+            const files = await fs.readdir(USERS_DIR);
+
+            const users = await Promise.all(
+                files.filter(f => f.endsWith(".json")).map(async file => {
+                    const content = await fs.readFile(path.join(USERS_DIR, file), "utf8");
+                    const { password, ...safe } = JSON.parse(content);
+                    return safe;
+                })
+            );
+
+            res.json(users);
+        } catch (e) {
+            res.status(500).json({ error: "Failed to list users" });
+        }
+    });
+
+    // POST login (check abbreviation + password)
+    app.post(`${api}/users/login`, async (req, res) => {
+        const { abbreviation, password } = req.body;
+
+        if (!abbreviation || !password) {
+            return res.status(400).json({ error: "Missing fields" });
+        }
+
+        try {
+            const files = await fs.readdir(USERS_DIR);
+
+            for (const file of files) {
+                const data = JSON.parse(
+                    await fs.readFile(path.join(USERS_DIR, file), "utf8")
+                );
+
+                if (data.abbreviation === abbreviation) {
+                    if (data.password !== password) {
+                        return res.status(401).json({ error: "Invalid password" });
+                    }
+                    const { password: _, ...safe } = data;
+                    return res.json(safe);
+                }
+            }
+
+            res.status(404).json({ error: "User not found" });
+        } catch {
+            res.status(500).json({ error: "Server error" });
+        }
+    });
+
     // USERS (unchanged but safe)
     app.post(`${api}/users`, async (req, res) => {
         const { name, abbreviation, password, isAdmin } = req.body;
