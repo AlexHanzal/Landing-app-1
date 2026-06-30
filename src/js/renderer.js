@@ -205,8 +205,15 @@ function updateClassInfo(timetableData) {
     if (!content || !box) return;
 
     box.querySelector('h4').textContent = 'Info';
+
+    const attrs = timetableData.attributes || [];
+    const attrHTML = attrs.length > 0
+        ? `<div class="info-attr-tags">${attrs.map(a => `<span class="attr-tag">${a}</span>`).join('')}</div>`
+        : '';
+
     content.innerHTML = `
         <div class="class-name"><strong>${timetableData.className}</strong></div>
+        ${attrHTML}
         <div class="class-description"><p>${timetableData.info?.trim() || '<em>Popis není k dispozici</em>'}</p></div>
     `;
 }
@@ -221,17 +228,16 @@ function updateTimetableForWeek(date) {
 
 function updateWeekdayHeaders(startOfWeek) {
     const headerCells = document.querySelectorAll('.week-table thead th:not(:first-child)');
-    const hours = [
-        '8:00-8:45', '8:55-9:40', '10:00-10:45', '10:55-11:40',
-        '11:50-12:35', '12:45-13:30', '13:40-14:25', '14:35-15:20'
-    ];
+    const weekdays = translations[currentLanguage].weekdays.slice(0, 5);
 
     const firstTh = document.querySelector('.week-table thead th:first-child');
-    if (firstTh) firstTh.textContent = '';
+    if (firstTh) firstTh.textContent = 'Čas';
 
     headerCells.forEach((th, i) => {
-        if (i < hours.length) {
-            th.innerHTML = `<strong>${hours[i]}</strong>`;
+        if (i < weekdays.length) {
+            const dayDate = new Date(startOfWeek);
+            dayDate.setDate(startOfWeek.getDate() + i);
+            th.innerHTML = `<strong>${weekdays[i]}</strong><br><small>${dayDate.getDate()}.${dayDate.getMonth() + 1}.</small>`;
             th.style.display = '';
         } else {
             th.style.display = 'none';
@@ -242,29 +248,17 @@ function updateWeekdayHeaders(startOfWeek) {
 }
 
 function updateDayCells(startOfWeek) {
+    const hours = [
+        '8:00-9:00', '9:00-10:00', '10:00-11:00', '11:00-12:00',
+        '12:00-13:00', '13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00', '17:00-18:00','18:00-19:00', '19:00-20:00'
+    ];
     const dayCells = document.querySelectorAll('.week-table tbody tr td:first-child');
-    const weekdays = translations[currentLanguage].weekdays.slice(0, 5);
-    const today = new Date();
-    const todayStr = `${today.getDate()}-${today.getMonth()}-${today.getFullYear()}`;
 
     dayCells.forEach((cell, index) => {
-        if (index < weekdays.length) {
-            const dayDate = new Date(startOfWeek);
-            dayDate.setDate(startOfWeek.getDate() + index);
-            cell.innerHTML = `<strong>${weekdays[index]}</strong><br><small>${dayDate.getDate()}.${dayDate.getMonth() + 1}.</small>`;
+        if (index < hours.length) {
+            cell.innerHTML = `<strong>${hours[index]}</strong>`;
             cell.style.display = '';
-
-            const cellStr = `${dayDate.getDate()}-${dayDate.getMonth()}-${dayDate.getFullYear()}`;
             const row = cell.parentElement;
-            if (cellStr === todayStr) {
-                cell.classList.add('today-cell');
-                cell.style.backgroundColor = '#a7a7a7';
-                if (row) { row.classList.add('today-row'); row.style.backgroundColor = '#fff8e1'; }
-            } else {
-                cell.classList.remove('today-cell');
-                cell.style.backgroundColor = '';
-                if (row) { row.classList.remove('today-row'); row.style.backgroundColor = ''; }
-            }
             if (row) row.style.display = '';
         } else {
             const row = cell.parentElement;
@@ -303,16 +297,19 @@ function displayTimetableDataForWeek(startOfWeek) {
 function applyWeekData(weekData, permanentOnly) {
     const processDay = (dayIdx, dayData) => {
         if (dayIdx >= 5 || !dayData) return;
-        const row = document.querySelectorAll('.week-table tbody tr')[dayIdx];
-        if (!row) return;
-        const cells = row.querySelectorAll('td:not(:first-child)');
+        if (!dayData || Object.keys(dayData).length === 0) return;
 
         Object.entries(dayData).forEach(([hourIndex, hourObj]) => {
             if (!hourObj?.content) return;
             if (permanentOnly && !hourObj.isPermanent) return;
 
-            const colIndex = parseInt(hourIndex) - 1;
-            const cell = cells[colIndex];
+            const hourIdx = parseInt(hourIndex) - 1;  // Hour index (0-11)
+            const rows = document.querySelectorAll('.week-table tbody tr');
+            const row = rows[hourIdx];
+            if (!row) return;
+            
+            const cells = row.querySelectorAll('td:not(:first-child)');
+            const cell = cells[dayIdx];  // Column index based on day
             if (!cell) return;
 
             // Don't overwrite non-permanent cells with permanent data
@@ -467,13 +464,22 @@ async function saveTimeTable() {
     const dateString = getDateString(currentWeekDate);
 
     if (!timetables[currentTimetableName].data) timetables[currentTimetableName].data = {};
-    if (!timetables[currentTimetableName].data[dateString]) timetables[currentTimetableName].data[dateString] = {};
+    if (!timetables[currentTimetableName].data[dateString]) timetables[currentTimetableName].data[dateString] = [];
 
-    rows.forEach((row, dayIndex) => {
+    // Initialize data structure with 5 days (Monday-Friday)
+    for (let day = 0; day < 5; day++) {
+        if (!timetables[currentTimetableName].data[dateString][day]) {
+            timetables[currentTimetableName].data[dateString][day] = {};
+        }
+    }
+
+    // NEW FORMAT: hours are rows, days are columns
+    rows.forEach((row, hourIndex) => {
         const cells = row.querySelectorAll('td:not(:first-child)');
-        timetables[currentTimetableName].data[dateString][dayIndex] = {};
 
-        cells.forEach((cell, hourIndex) => {
+        cells.forEach((cell, dayIndex) => {
+            if (dayIndex >= 5) return; // Only 5 days (Monday-Friday)
+
             const abbrevSpan = cell.querySelector('.user-abbreviation');
             let content = cell.textContent.trim();
             let abbreviation = null;
@@ -488,6 +494,8 @@ async function saveTimeTable() {
             const isPermanent = cell.classList.contains('permanent-hour');
             const hourObj = { content, isPermanent };
             if (abbreviation && !isPermanent) hourObj.abbreviation = abbreviation;
+            
+            // Store by day and hour index
             timetables[currentTimetableName].data[dateString][dayIndex][hourIndex + 1] = hourObj;
 
             // Propagate permanent hours to future weeks
@@ -507,9 +515,13 @@ async function saveTimeTable() {
 
     // Rebuild permanentHours for backward compat
     timetables[currentTimetableName].permanentHours = {};
-    rows.forEach((row, dayIndex) => {
-        timetables[currentTimetableName].permanentHours[dayIndex] = {};
-        row.querySelectorAll('td:not(:first-child)').forEach((cell, hourIndex) => {
+    for (let day = 0; day < 5; day++) {
+        timetables[currentTimetableName].permanentHours[day] = {};
+    }
+
+    rows.forEach((row, hourIndex) => {
+        row.querySelectorAll('td:not(:first-child)').forEach((cell, dayIndex) => {
+            if (dayIndex >= 5) return;
             if (cell.classList.contains('permanent-hour')) {
                 timetables[currentTimetableName].permanentHours[dayIndex][hourIndex + 1] = getCellContent(cell);
             }
@@ -524,7 +536,7 @@ async function saveTimetable(name, data) {
         const response = await fetch(`${API_URL}/timetables/${encodeURIComponent(name)}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fileId: data.fileId, data: data.data, info: data.info || '' })
+            body: JSON.stringify({ fileId: data.fileId, data: data.data, info: data.info || '', attributes: data.attributes || [] })
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         showCustomAlert('Úspěch', 'Změny byly úspěšně uloženy', 'success');
@@ -542,13 +554,8 @@ function enableAdminMode() {
     document.querySelectorAll('.gear-icon').forEach(icon => icon.classList.add('visible'));
     document.getElementById('create-new')?.classList.add('admin-visible');
     document.getElementById('accounts-button')?.classList.add('admin-visible');
-
-    document.querySelectorAll('.week-table tbody td:not(:first-child)').forEach(cell => {
-        cell.setAttribute('contenteditable', 'true');
-        cell.classList.add('editable');
-    });
-
-    document.querySelector('.save-button')?.style && (document.querySelector('.save-button').style.display = 'block');
+    const innerBtn = document.getElementById('inner-site-btn');
+    if (innerBtn) innerBtn.style.display = 'inline-block';
 
     let toggleBtn = document.getElementById('toggle-permanent-btn');
     if (!toggleBtn) {
@@ -559,9 +566,7 @@ function enableAdminMode() {
         toggleBtn.addEventListener('click', togglePermanentHourMode);
         document.querySelector('.time-table-buttons')?.appendChild(toggleBtn);
     }
-    toggleBtn.style.display = 'block';
-
-    setupCellEditing();
+    toggleBtn.style.display = 'none'; // Only show when in edit mode
 }
 
 function disableAdminMode() {
@@ -571,16 +576,27 @@ function disableAdminMode() {
     document.querySelectorAll('.gear-icon').forEach(icon => icon.classList.remove('visible'));
     document.getElementById('create-new')?.classList.remove('admin-visible');
     document.getElementById('accounts-button')?.classList.remove('admin-visible');
+    const innerBtn = document.getElementById('inner-site-btn');
+    if (innerBtn) innerBtn.style.display = 'none';
 
-    document.querySelectorAll('.week-table tbody td:not(:first-child)').forEach(cell => {
-        cell.setAttribute('contenteditable', 'false');
-        cell.classList.remove('editable');
-    });
-
-    document.querySelector('.save-button') && (document.querySelector('.save-button').style.display = 'none');
+    // If currently in edit mode, cancel it
+    if (isEditMode) {
+        isEditMode = false;
+        const editBtn = document.querySelector('.edit-button');
+        if (editBtn) editBtn.textContent = 'Zamluvit stůl';
+        document.querySelectorAll('.week-table tbody td:not(:first-child)').forEach(cell => {
+            cell.setAttribute('contenteditable', 'false');
+            cell.classList.remove('editable');
+        });
+        document.querySelector('.save-button') && (document.querySelector('.save-button').style.display = 'none');
+    }
 
     const toggleBtn = document.getElementById('toggle-permanent-btn');
-    if (toggleBtn) toggleBtn.style.display = 'none';
+    if (toggleBtn) {
+        toggleBtn.style.display = 'none';
+        toggleBtn.classList.remove('active');
+        toggleBtn.textContent = 'Trvalé hodiny: OFF';
+    }
 
     document.querySelectorAll('.button-group').forEach(g => g.classList.remove('admin-active'));
 }
@@ -606,19 +622,18 @@ async function loadTimetables() {
     document.querySelectorAll('.button-group').forEach(g => g.remove());
     timetables = {};
 
+    const vybratBtn = document.getElementById('vybrat-stul-btn');
+
     const container = document.getElementById('dynamic-links-container');
     if (container) container.innerHTML = '';
 
     if (!currentUser.isLoggedIn) {
-        if (container) {
-            const msg = document.createElement('div');
-            msg.className = 'login-required-message';
-            msg.textContent = 'Přihlaste se, abyste zobrazil/a učebny';
-            msg.style.cssText = 'text-align:center;padding:20px;color:#777;';
-            container.appendChild(msg);
-        }
+        if (vybratBtn) vybratBtn.disabled = true;
+        renderFilterPanel();
         return;
     }
+
+    if (vybratBtn) vybratBtn.disabled = false;
 
     const deletedClasses = JSON.parse(localStorage.getItem('deletedClasses') || '[]');
 
@@ -639,22 +654,174 @@ async function loadTimetables() {
                     fileId: data.fileId,
                     data: data.data || {},
                     info: data.info || '',
+                    attributes: data.attributes || [],
                     permanentHours: data.permanentHours || {},
                     currentWeek: data.currentWeek || new Date().toISOString(),
                 };
-                if (container) {
-                    const btn = createDynamicButton(name);
-                    btn.querySelector('.dynamic-button')?.setAttribute('data-name', name);
-                    container.appendChild(btn);
-                }
             } catch (e) {
                 console.error(`Error loading timetable ${name}:`, e);
             }
         }
+
+        renderFilterPanel();
     } catch (error) {
         console.error('Failed to load timetables:', error);
         showCustomAlert('Chyba', 'Nepodařilo se načíst rozvrhy', 'error');
     }
+}
+
+// ─── FILTER PANEL ────────────────────────────────────────────────────────────
+
+let activeFilters = new Set();
+
+function getAllAttributes() {
+    const attrs = new Set();
+    Object.values(timetables).forEach(t => {
+        (t.attributes || []).forEach(a => attrs.add(a));
+    });
+    return [...attrs].sort();
+}
+
+function renderFilterPanel() {
+    renderFilterCheckboxes();
+    renderFilterResults();
+}
+
+function renderFilterCheckboxes() {
+    const container = document.getElementById('filter-checkboxes');
+    if (!container) return;
+
+    const allAttrs = getAllAttributes();
+    container.innerHTML = '';
+
+    if (allAttrs.length === 0) {
+        container.innerHTML = '<p class="no-attributes-msg">Žádné vlastnosti nejsou k dispozici</p>';
+        return;
+    }
+
+    allAttrs.forEach(attr => {
+        const label = document.createElement('label');
+        label.className = 'filter-checkbox-label';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = attr;
+        cb.checked = activeFilters.has(attr);
+        cb.addEventListener('change', () => {
+            if (cb.checked) activeFilters.add(attr);
+            else activeFilters.delete(attr);
+            renderFilterResults();
+        });
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(' ' + attr));
+        container.appendChild(label);
+    });
+}
+
+function renderFilterResults() {
+    const container = document.getElementById('filter-results');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!currentUser.isLoggedIn) {
+        container.innerHTML = '<p class="no-tables-msg">Přihlaste se pro zobrazení stolů</p>';
+        return;
+    }
+
+    const names = Object.keys(timetables);
+    if (names.length === 0) {
+        container.innerHTML = '<p class="no-tables-msg">Žádné stoly nejsou k dispozici</p>';
+        return;
+    }
+
+    const filtered = names.filter(name => {
+        if (activeFilters.size === 0) return true;
+        const attrs = new Set(timetables[name].attributes || []);
+        return [...activeFilters].every(f => attrs.has(f));
+    });
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<p class="no-tables-msg">Žádný stůl neodpovídá filtrům</p>';
+        return;
+    }
+
+    filtered.forEach(name => {
+        const t = timetables[name];
+        const card = document.createElement('div');
+        card.className = 'filter-table-card' + (name === currentTimetableName ? ' selected' : '');
+
+        const cardMain = document.createElement('div');
+        cardMain.className = 'filter-card-main';
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'filter-card-name';
+        nameEl.textContent = name;
+
+        const attrsEl = document.createElement('div');
+        attrsEl.className = 'filter-card-attrs';
+        (t.attributes || []).forEach(a => {
+            const tag = document.createElement('span');
+            tag.className = 'attr-tag';
+            tag.textContent = a;
+            attrsEl.appendChild(tag);
+        });
+
+        if ((t.attributes || []).length === 0) {
+            const none = document.createElement('span');
+            none.className = 'no-attr-hint';
+            none.textContent = 'Bez vlastností';
+            attrsEl.appendChild(none);
+        }
+
+        cardMain.appendChild(nameEl);
+        cardMain.appendChild(attrsEl);
+        cardMain.addEventListener('click', () => {
+            showTimetable(name);
+            closeFilterPanel();
+        });
+
+        card.appendChild(cardMain);
+
+        // Admin edit button
+        if (isAdminMode) {
+            const editBtn = document.createElement('button');
+            editBtn.className = 'filter-card-edit-btn';
+            editBtn.title = 'Upravit stůl';
+            editBtn.innerHTML = '✎';
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeFilterPanel();
+                setTimeout(() => showClassEditMenu(name), 310);
+            });
+            card.appendChild(editBtn);
+        }
+
+        container.appendChild(card);
+    });
+}
+
+function openFilterPanel() {
+    const panel = document.getElementById('table-filter-panel');
+    const overlay = document.getElementById('table-filter-overlay');
+    if (!panel || !overlay) return;
+    renderFilterPanel();
+    panel.style.display = 'flex';
+    overlay.style.display = 'block';
+    requestAnimationFrame(() => {
+        panel.classList.add('active');
+        overlay.classList.add('active');
+    });
+}
+
+function closeFilterPanel() {
+    const panel = document.getElementById('table-filter-panel');
+    const overlay = document.getElementById('table-filter-overlay');
+    if (!panel || !overlay) return;
+    panel.classList.remove('active');
+    overlay.classList.remove('active');
+    setTimeout(() => {
+        panel.style.display = 'none';
+        overlay.style.display = 'none';
+    }, 300);
 }
 
 function createDynamicButton(name) {
@@ -799,7 +966,6 @@ async function handleLogin() {
             const savedTimetable = localStorage.getItem('currentTimetable');
             if (savedTimetable && timetables[savedTimetable]) {
                 showTimetable(savedTimetable);
-                setTimeout(setupCellEditing, 500);
             }
 
             showCustomAlert('Úspěch', 'Úspěšně přihlášen', 'success');
@@ -1024,6 +1190,14 @@ function showClassEditMenu(name) {
             <h2>Upravit třídu</h2>
             <div class="input-group"><label>Název třídy</label><input type="text" id="class-name-edit"></div>
             <div class="input-group"><label>Popis třídy</label><textarea id="class-description-edit" rows="3"></textarea></div>
+            <div class="attributes-admin-section">
+                <label>Vlastnosti stolu</label>
+                <div class="attr-input-row">
+                    <input type="text" id="attr-new-input" placeholder="Např. U okna, 4 místa...">
+                    <button id="attr-add-btn" class="attr-add-btn">+ Přidat</button>
+                </div>
+                <div class="attr-tags-edit" id="attr-tags-edit"></div>
+            </div>
             <div class="class-edit-error" id="class-edit-error"></div>
             <div class="class-edit-actions">
                 <button id="rename-class-btn" class="primary-btn">Přejmenovat</button>
@@ -1032,6 +1206,10 @@ function showClassEditMenu(name) {
             </div>`;
         document.body.appendChild(popup);
         document.getElementById('cancel-class-edit-btn').addEventListener('click', hideClassEditMenu);
+        document.getElementById('attr-add-btn').addEventListener('click', () => addAttributeFromInput(popup._editingName));
+        document.getElementById('attr-new-input').addEventListener('keypress', e => {
+            if (e.key === 'Enter') { e.preventDefault(); addAttributeFromInput(popup._editingName); }
+        });
 
         let overlay = document.getElementById('class-edit-overlay');
         if (!overlay) {
@@ -1043,14 +1221,81 @@ function showClassEditMenu(name) {
         }
     }
 
+    popup._editingName = name;
     document.getElementById('class-name-edit').value = name;
     document.getElementById('class-description-edit').value = timetables[name]?.info || '';
     document.getElementById('class-edit-error').style.display = 'none';
+    document.getElementById('attr-new-input').value = '';
+    renderAttrTagsEdit(name);
     document.getElementById('rename-class-btn').onclick = () => renameClass(name);
     document.getElementById('delete-class-btn').onclick = () => deleteClass(name);
 
     popup.style.display = 'block';
     document.getElementById('class-edit-overlay').style.display = 'block';
+}
+
+function renderAttrTagsEdit(name) {
+    const container = document.getElementById('attr-tags-edit');
+    if (!container) return;
+    container.innerHTML = '';
+    const attrs = timetables[name]?.attributes || [];
+    attrs.forEach(attr => {
+        const tag = document.createElement('span');
+        tag.className = 'attr-tag editable-tag';
+        tag.textContent = attr;
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'attr-remove-btn';
+        removeBtn.textContent = '×';
+        removeBtn.title = 'Odebrat vlastnost';
+        removeBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            timetables[name].attributes = (timetables[name].attributes || []).filter(a => a !== attr);
+            await saveTimetableAttributes(name);
+            renderAttrTagsEdit(name);
+            renderFilterPanel();
+        });
+        tag.appendChild(removeBtn);
+        container.appendChild(tag);
+    });
+    if (attrs.length === 0) {
+        container.innerHTML = '<span class="no-attr-hint">Žádné vlastnosti</span>';
+    }
+}
+
+async function addAttributeFromInput(name) {
+    const input = document.getElementById('attr-new-input');
+    if (!input || !name) return;
+    const val = input.value.trim();
+    if (!val) return;
+    if (!timetables[name]) return;
+    if (!timetables[name].attributes) timetables[name].attributes = [];
+    if (timetables[name].attributes.includes(val)) {
+        showCustomAlert('Info', 'Tato vlastnost již existuje', 'info');
+        return;
+    }
+    timetables[name].attributes.push(val);
+    input.value = '';
+    await saveTimetableAttributes(name);
+    renderAttrTagsEdit(name);
+    renderFilterPanel();
+}
+
+async function saveTimetableAttributes(name) {
+    if (!timetables[name]) return;
+    try {
+        await fetch(`${API_URL}/timetables/${encodeURIComponent(name)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fileId: timetables[name].fileId,
+                data: timetables[name].data || {},
+                info: timetables[name].info || '',
+                attributes: timetables[name].attributes || []
+            })
+        });
+    } catch (e) {
+        console.error('Failed to save attributes:', e);
+    }
 }
 
 function hideClassEditMenu() {
@@ -1087,7 +1332,7 @@ async function renameClass(oldName) {
             await fetch(`${API_URL}/timetables/${encodeURIComponent(newName)}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fileId: result.fileId, data: timetableData.data || {}, info: newDescription, permanentHours: timetableData.permanentHours || {}, currentWeek: timetableData.currentWeek || new Date().toISOString() })
+                body: JSON.stringify({ fileId: result.fileId, data: timetableData.data || {}, info: newDescription, attributes: timetableData.attributes || [], permanentHours: timetableData.permanentHours || {}, currentWeek: timetableData.currentWeek || new Date().toISOString() })
             });
 
             await fetch(`${API_URL}/timetables`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: oldName }) });
@@ -1112,7 +1357,7 @@ async function renameClass(oldName) {
             await fetch(`${API_URL}/timetables/${encodeURIComponent(oldName)}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fileId: timetableData.fileId, data: timetableData.data || {}, info: newDescription })
+                body: JSON.stringify({ fileId: timetableData.fileId, data: timetableData.data || {}, info: newDescription, attributes: timetableData.attributes || [] })
             });
             if (currentTimetableName === oldName) updateClassInfo(timetables[oldName]);
         }
@@ -1299,6 +1544,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.timetable-calendar .prev-button')?.addEventListener('click', () => navigateMonth(-1));
     document.querySelector('.timetable-calendar .next-button')?.addEventListener('click', () => navigateMonth(1));
 
+    // Vybrat stůl button opens filter panel
+    document.getElementById('vybrat-stul-btn')?.addEventListener('click', openFilterPanel);
+    document.getElementById('close-filter-panel')?.addEventListener('click', closeFilterPanel);
+    document.getElementById('inner-site-btn')?.addEventListener('click', () => {
+        const url = `${API_BASE_URL}/reservation/inner.html?api=${encodeURIComponent(API_BASE_URL)}`;
+        window.open(url, 'spravaStolu', 'width=1400,height=900,menubar=no,toolbar=no,location=no,status=no');
+    });
+    document.getElementById('table-filter-overlay')?.addEventListener('click', closeFilterPanel);
+
     // Select screen
     document.getElementById('create-new')?.addEventListener('click', showSelectScreen);
     document.getElementById('close-select')?.addEventListener('click', () => {
@@ -1311,25 +1565,37 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isAdminMode) showAccountCreatePopup();
     });
 
-    // Edit button
     const editButton = document.querySelector('.edit-button');
     if (editButton) {
         editButton.addEventListener('click', function () {
-            if (!isAdminMode) {
-                isEditMode = !isEditMode;
-                this.textContent = isEditMode ? 'Zrušit' : 'Zamluvit hodinu';
+            isEditMode = !isEditMode;
+            this.textContent = isEditMode ? 'Zrušit' : 'Zamluvit stůl';
 
-                document.querySelectorAll('.week-table tbody td:not(:first-child)').forEach(cell => {
-                    if (!cell.classList.contains('permanent-hour')) {
-                        cell.setAttribute('contenteditable', isEditMode ? 'true' : 'false');
-                        cell.classList.toggle('editable', isEditMode);
-                    }
-                });
+            document.querySelectorAll('.week-table tbody td:not(:first-child)').forEach(cell => {
+                if (!cell.classList.contains('permanent-hour')) {
+                    cell.setAttribute('contenteditable', isEditMode ? 'true' : 'false');
+                    cell.classList.toggle('editable', isEditMode);
+                }
+            });
 
-                if (isEditMode) setupCellEditing();
-                const saveBtn = document.querySelector('.save-button');
-                if (saveBtn) saveBtn.style.display = isEditMode ? 'block' : 'none';
+            if (isEditMode) {
+                setupCellEditing();
+                // Show permanent hours toggle for admins
+                const toggleBtn = document.getElementById('toggle-permanent-btn');
+                if (toggleBtn && isAdminMode) toggleBtn.style.display = 'block';
+            } else {
+                // Reset permanent hour mode when cancelling
+                permanentHourModeEnabled = false;
+                const toggleBtn = document.getElementById('toggle-permanent-btn');
+                if (toggleBtn) {
+                    toggleBtn.style.display = 'none';
+                    toggleBtn.classList.remove('active');
+                    toggleBtn.textContent = 'Trvalé hodiny: OFF';
+                }
             }
+
+            const saveBtn = document.querySelector('.save-button');
+            if (saveBtn) saveBtn.style.display = isEditMode ? 'block' : 'none';
         });
     }
 
@@ -1337,9 +1603,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.save-button')?.addEventListener('click', () => {
         saveTimeTable();
         isEditMode = false;
+        permanentHourModeEnabled = false;
         const editBtn = document.querySelector('.edit-button');
-        if (editBtn) editBtn.textContent = 'Zamluvit hodinu';
+        if (editBtn) editBtn.textContent = 'Zamluvit stůl';
         document.querySelector('.save-button').style.display = 'none';
+        const toggleBtn = document.getElementById('toggle-permanent-btn');
+        if (toggleBtn) {
+            toggleBtn.style.display = 'none';
+            toggleBtn.classList.remove('active');
+            toggleBtn.textContent = 'Trvalé hodiny: OFF';
+        }
         document.querySelectorAll('.week-table tbody td:not(:first-child)').forEach(cell => {
             cell.setAttribute('contenteditable', 'false');
             cell.classList.remove('editable', 'edited-cell');
