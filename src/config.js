@@ -8,17 +8,17 @@
 // AUTO-CONFIGURATION: Try to detect backend server automatically
 function autoDetectBackend() {
     const hostname = window.location.hostname;
-    
-    // Common development ports to try
-    const commonPorts = [3000, 3001, 8080, 8000, 5000];
-    
-    // Try localhost first if we're on localhost
+
+    // Local development: backend runs separately on port 3000
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return `http://localhost:3000`; // Default for local development
+        return `http://localhost:3000`;
     }
-    
-    // For production, assume same hostname with port 3000
-    return `http://${hostname}:3000`;
+
+    // Production (e.g. Render): frontend and backend are served by the
+    // SAME process on the SAME origin, no separate port. Using the page's
+    // own origin also avoids mixed-content errors (an http:// fetch from
+    // an https:// page gets blocked by the browser).
+    return window.location.origin;
 }
 
 // MANUAL CONFIGURATION: Set your backend server URL here
