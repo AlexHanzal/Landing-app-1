@@ -1,0 +1,56 @@
+{
+  "className": "Stůl 3",
+  "fileId": "UFhFVG3kHn28",
+  "data": {
+    "2026-06-28": [
+      {},
+      {
+        "7": {
+          "content": "fawfga",
+          "isPermanent": false,
+          "abbreviation": "už"
+        },
+        "8": {
+          "content": "fwfaa",
+          "isPermanent": false,
+          "abbreviation": "a"
+        }
+      },
+      {
+        "3": {
+          "content": "Alex Hanzal",
+          "isPermanent": false,
+          "abbreviation": "už"
+        }
+      },
+      {
+        "7": {
+          "content": "Test 4",
+          "isPermanent": false,
+          "abbreviation": "a"
+        },
+        "8": {
+          "content": "Test 3",
+          "isPermanent": false,
+          "abbreviation": "a"
+        }
+      },
+      {}
+    ]
+  },
+  "calendar": "",
+  "currentWeek": "2026-06-29T11:19:11.724Z",
+  "info": "",
+  "attributes": [
+    "4 židle",
+    "u okna",
+    "Zelene"
+  ],
+  "permanentHours": {
+    "0": {},
+    "1": {},
+    "2": {},
+    "3": {},
+    "4": {}
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "className": "Test 2",
+  "fileId": "kON3JDaIP7z7",
+  "data": {
+    "2026-06-07": [
+      {},
+      {},
+      {},
+      {},
+      {}
+    ],
+    "2026-06-28": [
+      {},
+      {},
+      {
+        "2": {
+          "content": "Střed 1.7a",
+          "isPermanent": false,
+          "abbreviation": "a"
+        }
+      },
+      {},
+      {}
+    ]
+  },
+  "calendar": "",
+  "currentWeek": "2026-06-09T10:41:45.686Z",
+  "info": "Stůl ideální pro menší rodinky",
+  "attributes": [
+    "Blízko kuchyně",
+    "4 židle"
+  ],
+  "permanentHours": {
+    "0": {},
+    "1": {},
+    "2": {},
+    "3": {},
+    "4": {}
+  }
+}

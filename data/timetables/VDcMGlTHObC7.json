@@ -1,10 +1,117 @@
 {
   "className": "Test",
   "fileId": "VDcMGlTHObC7",
-  "data": {},
+  "data": {
+    "2026-06-01": {
+      "0": {
+        "2": {
+          "content": "fwgaa",
+          "isPermanent": false,
+          "abbreviation": "a"
+        }
+      },
+      "1": {},
+      "2": {
+        "3": {
+          "content": "dfsfa",
+          "isPermanent": false,
+          "abbreviation": "a"
+        },
+        "4": {
+          "content": "fgagewaw",
+          "isPermanent": false,
+          "abbreviation": "už"
+        },
+        "5": {
+          "content": "test",
+          "isPermanent": false,
+          "abbreviation": "a"
+        }
+      },
+      "3": {
+        "2": {
+          "content": "dwad",
+          "isPermanent": false,
+          "abbreviation": "už"
+        }
+      },
+      "4": {
+        "2": {
+          "content": "fwafa",
+          "isPermanent": false,
+          "abbreviation": "už"
+        },
+        "3": {
+          "content": "a",
+          "isPermanent": false,
+          "abbreviation": "už"
+        }
+      },
+      "5": {},
+      "6": {},
+      "7": {},
+      "8": {},
+      "9": {},
+      "10": {},
+      "11": {}
+    },
+    "2026-06-07": {
+      "0": {},
+      "1": {},
+      "2": {},
+      "3": {
+        "2": {
+          "content": "dgd",
+          "isPermanent": false,
+          "abbreviation": "a"
+        },
+        "3": {
+          "content": "Test",
+          "isPermanent": false,
+          "abbreviation": "a"
+        },
+        "4": {
+          "content": "test2",
+          "isPermanent": false,
+          "abbreviation": "a"
+        }
+      },
+      "4": {},
+      "5": {},
+      "6": {},
+      "7": {},
+      "8": {},
+      "9": {},
+      "10": {},
+      "11": {}
+    },
+    "2026-06-21": [
+      {},
+      {
+        "3": {
+          "content": "Pepa",
+          "isPermanent": false,
+          "abbreviation": "a"
+        }
+      },
+      {
+        "2": {
+          "content": "Hnzlaa",
+          "isPermanent": false,
+          "abbreviation": "a"
+        }
+      },
+      {},
+      {}
+    ]
+  },
   "calendar": "",
   "currentWeek": "2026-06-06T19:02:35.449Z",
-  "info": "Testovací subject",
+  "info": "Stůl s výhledem",
+  "attributes": [
+    "U okna",
+    "2 místa"
+  ],
   "permanentHours": {
     "0": {},
     "1": {},
