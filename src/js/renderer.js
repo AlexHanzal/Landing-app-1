@@ -37,7 +37,12 @@ function getStartOfWeek(date) {
 }
 
 function getDateString(date) {
-    return date.toISOString().split('T')[0];
+    // Local-date-based (not toISOString, which converts to UTC and can shift
+    // the date by a day depending on timezone offset and time-of-day).
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
 }
 
 // ─── CALENDAR ────────────────────────────────────────────────────────────────

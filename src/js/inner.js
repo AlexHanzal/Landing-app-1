@@ -136,6 +136,24 @@ function addDaysToDateStr(dateStr, days) {
     return `${yy}-${mm}-${dd}`;
 }
 
+function getUTCWeekday(dateStr) {
+    // 0 = Sunday, 1 = Monday, ... 6 = Saturday
+    const { y, m, d } = parseDateStr(dateStr);
+    return new Date(Date.UTC(y, m - 1, d, 12, 0, 0)).getUTCDay();
+}
+
+function snapToMonday(dateStr) {
+    // The customer app's older getDateString() implementation used
+    // toISOString(), which converts to UTC before formatting and could
+    // shift the stored "week start" key by a day depending on timezone —
+    // some existing data on disk may be keyed by a Sunday instead of the
+    // intended Monday. Snapping here means both old (slightly-off) and
+    // newly-saved (correct) data resolve to the same real calendar dates.
+    const weekday = getUTCWeekday(dateStr); // 0=Sun..6=Sat
+    const offsetToMonday = weekday === 0 ? -6 : 1 - weekday;
+    return offsetToMonday === 0 ? dateStr : addDaysToDateStr(dateStr, offsetToMonday);
+}
+
 function extractBookings(timetable) {
     const out = [];
     const data = timetable.data || {};
@@ -150,9 +168,11 @@ function extractBookings(timetable) {
             const hours = Array.isArray(dayData) ? dayData[dayIdx] : dayData[dayIdx];
             if (!hours || typeof hours !== 'object') return;
 
-            // The stored key is the Monday of that week; the actual booking
-            // date is that Monday plus the day-of-week offset (dayIdx).
-            const actualDateStr = addDaysToDateStr(weekStartStr, dayIdx);
+            // The stored key is supposed to be the Monday of that week, but
+            // some legacy data may be keyed by a Sunday (see snapToMonday).
+            // Snap first, then add the day-of-week offset (dayIdx).
+            const realWeekStart = snapToMonday(weekStartStr);
+            const actualDateStr = addDaysToDateStr(realWeekStart, dayIdx);
 
             Object.keys(hours).forEach(hourKey => {
                 const booking = hours[hourKey];
