@@ -67,47 +67,35 @@
 
   <!-- Hotbar under header -->
   <div class="hotbar" id="hotbar">
-    <button id="vybrat-stul-btn" class="vybrat-stul-btn" disabled>Rezervovat stůl</button>
+    <div class="hotbar-filters" id="hotbar-filters">
+      <div class="hotbar-filter-field">
+        <label for="reservation-date-input">Datum</label>
+        <input type="date" id="reservation-date-input" disabled>
+      </div>
+      <div class="hotbar-filter-field">
+        <label for="reservation-time-select">Čas</label>
+        <select id="reservation-time-select" disabled>
+          <option value="">Vyberte čas</option>
+        </select>
+      </div>
+      <div class="hotbar-filter-field hotbar-attrs-field">
+        <label>Vlastnosti</label>
+        <div class="filter-checkboxes" id="filter-checkboxes">
+          <p class="no-attributes-msg">Žádné vlastnosti nejsou k dispozici</p>
+        </div>
+      </div>
+    </div>
     <button class="create-new" id="create-new" title="Vytvořit novou třídu">+</button>
     <button id="accounts-button" title="Vytvořit uživatele">👤</button>
     <button id="inner-site-btn" class="inner-site-btn" title="Otevřít správu stolů" style="display:none;">⚙ Správa stolů</button>
     <button id="login-button">Přihlášení</button>
   </div>
 
-  <!-- Reservation panel -->
-  <div class="table-filter-overlay" id="table-filter-overlay"></div>
-  <div class="table-filter-panel" id="table-filter-panel">
-    <div class="filter-panel-header">
-      <h3>Rezervace stolu</h3>
-      <button class="close-filter-panel" id="close-filter-panel">×</button>
-    </div>
-    <div class="filter-panel-body">
-
-      <div class="inn-field-group">
-        <label for="reservation-date-input">Datum</label>
-        <input type="date" id="reservation-date-input">
-      </div>
-
-      <div class="inn-field-group">
-        <label for="reservation-time-select">Čas, kdy chcete přijít</label>
-        <select id="reservation-time-select">
-          <option value="">Vyberte čas</option>
-        </select>
-      </div>
-
-      <div class="filter-attributes-section" id="filter-attributes-section">
-        <h4>Vlastnosti stolu</h4>
-        <div class="filter-checkboxes" id="filter-checkboxes">
-          <p class="no-attributes-msg">Žádné vlastnosti nejsou k dispozici</p>
-        </div>
-      </div>
-
-      <div class="filter-results-section">
-        <h4>Dostupné stoly</h4>
-        <div class="filter-results" id="filter-results">
-          <p class="no-tables-msg">Nejprve vyberte datum a čas</p>
-        </div>
-      </div>
+  <!-- Reservation results panel, shown under the hotbar -->
+  <div class="reservation-results-panel" id="reservation-results-panel">
+    <h3 class="reservation-results-title">Dostupné stoly</h3>
+    <div class="filter-results" id="filter-results">
+      <p class="no-tables-msg">Přihlaste se pro zobrazení stolů</p>
     </div>
   </div>
 
