@@ -639,18 +639,21 @@ async function loadTimetables() {
     document.querySelectorAll('.button-group').forEach(g => g.remove());
     timetables = {};
 
-    const vybratBtn = document.getElementById('vybrat-stul-btn');
+    const dateInput = document.getElementById('reservation-date-input');
+    const timeSelect = document.getElementById('reservation-time-select');
 
     const container = document.getElementById('dynamic-links-container');
     if (container) container.innerHTML = '';
 
     if (!currentUser.isLoggedIn) {
-        if (vybratBtn) vybratBtn.disabled = true;
+        if (dateInput) dateInput.disabled = true;
+        if (timeSelect) timeSelect.disabled = true;
         renderFilterPanel();
         return;
     }
 
-    if (vybratBtn) vybratBtn.disabled = false;
+    if (dateInput) dateInput.disabled = false;
+    if (timeSelect) timeSelect.disabled = false;
 
     const deletedClasses = JSON.parse(localStorage.getItem('deletedClasses') || '[]');
 
@@ -870,31 +873,6 @@ function renderFilterResults() {
         card.appendChild(bookBtn);
         container.appendChild(card);
     });
-}
-
-function openFilterPanel() {
-    const panel = document.getElementById('table-filter-panel');
-    const overlay = document.getElementById('table-filter-overlay');
-    if (!panel || !overlay) return;
-    renderFilterPanel();
-    panel.style.display = 'flex';
-    overlay.style.display = 'block';
-    requestAnimationFrame(() => {
-        panel.classList.add('active');
-        overlay.classList.add('active');
-    });
-}
-
-function closeFilterPanel() {
-    const panel = document.getElementById('table-filter-panel');
-    const overlay = document.getElementById('table-filter-overlay');
-    if (!panel || !overlay) return;
-    panel.classList.remove('active');
-    overlay.classList.remove('active');
-    setTimeout(() => {
-        panel.style.display = 'none';
-        overlay.style.display = 'none';
-    }, 300);
 }
 
 // ─── BOOKING MODAL (duration + name) ─────────────────────────────────────────
@@ -1709,14 +1687,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.timetable-calendar .prev-button')?.addEventListener('click', () => navigateMonth(-1));
     document.querySelector('.timetable-calendar .next-button')?.addEventListener('click', () => navigateMonth(1));
 
-    // Vybrat stůl button opens filter panel
-    document.getElementById('vybrat-stul-btn')?.addEventListener('click', openFilterPanel);
-    document.getElementById('close-filter-panel')?.addEventListener('click', closeFilterPanel);
     document.getElementById('inner-site-btn')?.addEventListener('click', () => {
         const url = `${API_BASE_URL}/reservation/inner.html?api=${encodeURIComponent(API_BASE_URL)}`;
         window.open(url, 'spravaStolu', 'width=1400,height=900,menubar=no,toolbar=no,location=no,status=no');
     });
-    document.getElementById('table-filter-overlay')?.addEventListener('click', closeFilterPanel);
     document.getElementById('reservation-date-input')?.addEventListener('change', renderFilterResults);
     document.getElementById('reservation-time-select')?.addEventListener('change', renderFilterResults);
     document.getElementById('reservationModalCancelBtn')?.addEventListener('click', closeReservationModal);
