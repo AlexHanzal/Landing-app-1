@@ -100,6 +100,7 @@ function setupMiddleware() {
         });
 
         app.get(`${base}/inner.html`, innerHtmlRoute);
+        app.get(`${base}/admin`, innerHtmlRoute);
     } else {
         app.use(express.static(frontendPath));
 
@@ -108,6 +109,7 @@ function setupMiddleware() {
         });
 
         app.get("/inner.html", innerHtmlRoute);
+        app.get("/admin", innerHtmlRoute);
     }
 }
 
@@ -126,7 +128,10 @@ app.get("/", (req, res) => {
             users: `${SERVER_CONFIG.basePath}/api/users`
         },
         frontend: SERVER_CONFIG.serveFrontend
-            ? { url: `${req.protocol}://${host}${SERVER_CONFIG.basePath}/app` }
+            ? {
+                url: `${req.protocol}://${host}${SERVER_CONFIG.basePath}/app`,
+                admin: `${req.protocol}://${host}${SERVER_CONFIG.basePath}/admin`
+              }
             : undefined,
         status: "running"
     });
