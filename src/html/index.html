@@ -2,7 +2,6 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <!-- Add viewport for mobile scaling -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Rezervační aplikace</title>
     <link rel="icon" href="data:,">
@@ -10,33 +9,14 @@
     <link rel="stylesheet" href="/reservation/css/buttons.css">
     <link rel="stylesheet" href="/reservation/css/inner.css">
     <style>
-        /* Ensure proper scrolling behavior */
         html, body {
             overflow-x: hidden;
             overflow-y: auto;
             height: auto;
             min-height: 100vh;
         }
-        
-        /* Make sure main content can scroll */
-        .time-table {
-            max-height: none;
-            overflow: visible;
-        }
-        
-        .table-container {
-            overflow-x: auto;
-            overflow-y: visible;
-        }
-        
-        /* Ensure timetable content doesn't get cut off */
-        .timetable-content {
-            min-height: auto;
-            overflow: visible;
-        }
-        /* Mobile: make popups and overlays scrollable and full width */
         @media (max-width: 700px) {
-            .select-window, .menu-content, .account-create-popup, .date-picker-window, .custom-alert, .class-edit-popup, .logout-confirm-content, .permanent-date-window {
+            .custom-alert {
                 min-width: 90vw !important;
                 width: 90vw !important;
                 left: 5vw !important;
@@ -47,7 +27,7 @@
             }
         }
         @media (max-width: 500px) {
-            .select-window, .menu-content, .account-create-popup, .date-picker-window, .custom-alert, .class-edit-popup, .logout-confirm-content, .permanent-date-window {
+            .custom-alert {
                 min-width: 98vw !important;
                 width: 98vw !important;
                 left: 1vw !important;
@@ -62,10 +42,9 @@
 <body>
   <header class="header" id="header">
     <h1 class="title">Rezervace</h1>
-  
   </header>
 
-  <!-- Hotbar under header -->
+  <!-- Hotbar under header: date / time / attribute filters -->
   <div class="hotbar" id="hotbar">
     <div class="hotbar-filters" id="hotbar-filters">
       <div class="hotbar-filter-field">
@@ -85,17 +64,13 @@
         </div>
       </div>
     </div>
-    <button class="create-new" id="create-new" title="Vytvořit novou třídu">+</button>
-    <button id="accounts-button" title="Vytvořit uživatele">👤</button>
-    <button id="inner-site-btn" class="inner-site-btn" title="Otevřít správu stolů" style="display:none;">⚙ Správa stolů</button>
-    <button id="login-button">Přihlášení</button>
   </div>
 
   <!-- Reservation results panel, shown under the hotbar -->
   <div class="reservation-results-panel" id="reservation-results-panel">
     <h3 class="reservation-results-title">Dostupné stoly</h3>
     <div class="filter-results" id="filter-results">
-      <p class="no-tables-msg">Přihlaste se pro zobrazení stolů</p>
+      <p class="no-tables-msg">Načítání…</p>
     </div>
   </div>
 
@@ -121,297 +96,11 @@
 
   <div class="inn-toast" id="reservationToast"></div>
 
-  <!-- Add login overlay and menu after header -->
-  <div class="login-overlay" id="login-overlay"></div>
-  <div class="login-menu" id="login-menu">
-    <button class="close-accounts-button" id="close-login">×</button>
-    <h3>Přihlášení uživatele</h3>
-    <div class="input-group">
-        <label for="user-select">Uživatel:</label>
-        <select id="user-select">
-            <option value="">Vyberte uživatele</option>
-        </select>
-    </div>
-    <div class="input-group">
-        <label for="password-input">Heslo:</label>
-        <input type="password" id="password-input" placeholder="Zadejte heslo">
-    </div>
-    <div class="login-error" id="login-error"></div>
-    <button id="submit-login">Přihlásit se</button>
-  </div>
-  
-  
-  
-
-  <!-- Keep only accounts overlay for account creation popup -->
-  <div class="accounts-overlay" id="accounts-overlay"></div>
-  
-  <div class="select-screen" id="select-screen">
-    <div class="select-window">
-      <button class="close-select" id="close-select">X</button>
-      <div class="input-group">
-        <label for="name-input">Název:</label>
-        <input type="text" id="name-input" placeholder="Zadejte název">
-      </div>
-      <div class="input-group">
-        <label for="type-select">Typ:</label>
-        <select id="type-select">
-          <option value="thing">Věc</option>
-          <option value="class">Třída</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label for="description-input">Popis třídy:</label>
-        <textarea id="description-input" placeholder="Zadejte popis třídy (volitelné)" rows="3"></textarea>
-      </div>
-      <button class="submit-button" id="submit-button">Odeslat</button>
-    </div>
-  </div>
-  
-  <div class="time-table">
-    <h2>Rozvrh hodin</h2>
-    <div class="timetable-content">
-      <div class="table-container">
-        <table class="week-table">
-          <thead>
-            <tr>
-              <th>Čas</th>
-              <th>Pondělí</th>
-              <th>Úterý</th>
-              <th>Středa</th>
-              <th>Čtvrtek</th>
-              <th>Pátek</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>8:00-9:00</td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <td>9:00-10:00</td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <td>10:00-11:00</td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <td>11:00-12:00</td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <td>12:00-13:00</td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <td>13:00-14:00</td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <td>14:00-15:00</td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <td>15:00-16:00</td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <td>16:00-17:00</td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <td>17:00-18:00</td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <td>18:00-19:00</td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-            <tr>
-              <td>19:00-20:00</td>
-              <td></td><td></td><td></td><td></td><td></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="bottom-content">
-        <div class="time-table-buttons">
-          <button class="edit-button">Zamluvit stůl</button>
-          <button class="save-button" style="display: none;">Uložit</button>
-          
-        </div>
-        <div class="timetable-info-section">
-          <div class="class-info-box" id="class-info-box">
-            <h4>Informace o třídě</h4>
-            <div class="class-info-content" id="class-info-content">
-              <p>Vyberte třídu pro zobrazení informací</p>
-            </div>
-          </div>
-          <div class="timetable-calendar">
-            <div class="calendar-header">
-              <button class="prev-button">&lt;</button>
-              <h3 class="calendar-title" id="timetable-calendar-title"></h3>
-              <button class="next-button">&gt;</button>
-            </div>
-            <div class="calendar" id="timetable-calendar"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="verification-window" id="verification-window">
-    <div class="verification-content">
-      <h2>Ověření</h2>
-      <button class="close-verification-button" id="close-verification">X</button>
-      <p>Prosím zadejte kód:</p>
-      <input type="password" id="verification-code" placeholder="Zadejte kód">
-      <div class="verification-buttons">
-        <button class="confirm-verification" id="confirm-verification">Potvrdit</button>
-      </div>
-    </div>
-  </div>
   <script>
       // Configuration for API URL - can be set before loading the app
-      // Example: window.API_BASE_URL = 'http://your-server.com:3000';
       window.API_BASE_URL = window.API_BASE_URL || `http://${window.location.hostname}:3000`;
-    </script>
+  </script>
   <script src="/reservation/config.js"></script>
   <script src="/reservation/js/renderer.js"></script>
-  <script>
-    // Add event listener to show save button when admin mode is activated
-    // Admin button removed - admin functionality now accessible through debug mode only
-    
-
-  </script>
-  <div class="custom-alert-overlay" id="alertOverlay"></div>
-  <div class="custom-alert" id="customAlert">
-    <h2>Úspěch!</h2>
-    <p>Režim administrátora aktivován</p>
-    <button>OK</button>
-  </div>
-  <div class="class-edit-menu" id="classEditMenu">
-    <div class="menu-content">
-      <h3>Upravit třídu</h3>
-      <button class="close-menu" id="closeClassEdit">✕</button>
-      <div class="input-group">
-        <label for="class-name-input">Název třídy:</label>
-        <input type="text" id="class-name-input">
-      </div>
-      <div class="menu-buttons">
-        <button class="save-class-name">Uložit</button>
-        <button class="delete-class">Smazat třídu</button>
-      </div>
-    </div>
-  </div>
-  <div id="debug-overlay"></div>
-  <div id="debug-menu">
-      <h2>Ladicí menu</h2>
-      <button id="debug-reset-all">Resetovat vše</button>
-      <button id="debug-create-new">Vytvořit novou třídu</button>
-      <button id="debug-accounts">Účty</button>
-      <button id="debug-set-date">Nastavit aktuální datum</button>
-      <button id="close-debug">Zavřít</button>
-  </div>
-
-  <div class="date-picker-overlay" id="datePickerOverlay">
-    <div class="date-picker-window">
-      <h2>Nastavit aktuální datum</h2>
-      <div class="calendar" id="date-picker-calendar"></div>
-      <div style="text-align: center; margin-top: 15px;">
-        <button class="save-button" id="save-custom-date">Uložit</button>
-        <button class="cancel-button" id="cancel-custom-date">Zrušit</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="custom-date-notice" id="customDateNotice">
-    <span>Aktuální datum nastaveno na: <span id="customDateText"></span></span>
-    <button class="reset-date-btn" id="resetDateBtn">Resetovat datum</button>
-  </div>
-  
-  <div class="loading-overlay" id="loadingOverlay">
-    <div class="loading-spinner"></div>
-    <div class="loading-text">Ukládání změn...</div>
-  </div>
-
-  <!-- Permanent Hour Date Range Selector -->
-  <div class="permanent-date-overlay" id="permanentDateOverlay">
-    <div class="permanent-date-window">
-      <h2>Nastavit rozsah dat pro trvalou hodinu</h2>
-      <button class="close-permanent-date" id="closePermanentDate">×</button>
-      
-      <div class="date-range-inputs">
-        <div class="input-group">
-          <label for="permanent-from-date">Od data:</label>
-          <input type="date" id="permanent-from-date">
-        </div>
-        <div class="input-group">
-          <label for="permanent-to-date">Do data:</label>
-          <input type="date" id="permanent-to-date">
-        </div>
-      </div>
-      
-      <div class="permanent-options">
-        <label>
-          <input type="checkbox" id="permanent-all-weeks" checked>
-          Použít pro všechny týdny (ignorovat rozsah dat)
-        </label>
-      </div>
-      
-      <div class="permanent-buttons">
-        <button class="save-permanent-button" id="save-permanent-range">Uložit</button>
-        <button class="cancel-permanent-button" id="cancel-permanent-range">Zrušit</button>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Make sure HTML overlays and modals are properly structured -->
-  <script>
-    // Improve transitions by ensuring modals and overlays work together
-    document.addEventListener('DOMContentLoaded', function() {
-      // Helper function to show a modal with proper timing
-      function showModal(modal, overlay) {
-        // First display the elements but keep them invisible
-        if (overlay) overlay.style.display = 'block';
-        modal.style.display = 'block';
-        
-        // Force a reflow to ensure the display change applies before adding the active class
-        void modal.offsetWidth;
-        
-        // Now add active class to trigger transition
-        if (overlay) overlay.classList.add('active');
-        modal.classList.add('active');
-      }
-      
-      // Helper function to hide a modal with proper timing
-      function hideModal(modal, overlay) {
-        // First remove the active class to trigger transition
-        modal.classList.remove('active');
-        if (overlay) overlay.classList.remove('active');
-        
-        // After transition completes, set display to none
-        setTimeout(() => {
-          modal.style.display = 'none';
-          if (overlay) overlay.style.display = 'none';
-        }, 300);
-      }
-      
-      // Apply to login button
-      const loginButton = document.getElementById('login-button');
-      const loginMenu = document.getElementById('login-menu');
-      const loginOverlay = document.getElementById('login-overlay');
-      
-      if (loginButton && loginMenu && loginOverlay) {
-        loginButton.addEventListener('click', function(e) {
-          if (!loginButton.classList.contains('logged-in')) {
-            e.preventDefault();
-            showModal(loginMenu, loginOverlay);
-          }
-        });
-      }
-    });
-  </script>
 </body>
 </html>

@@ -27,11 +27,34 @@
     </div>
 </div>
 
+<div class="inn-gate-overlay" id="loginGateOverlay" style="display:none;">
+    <div class="inn-gate-box">
+        <h2>Přihlášení</h2>
+        <p>Přístup ke správě stolů vyžaduje administrátorský účet.</p>
+        <div class="inn-field-group" style="text-align:left;">
+            <label for="loginUserSelect">Uživatel</label>
+            <select id="loginUserSelect">
+                <option value="">Vyberte uživatele</option>
+            </select>
+        </div>
+        <div class="inn-field-group" style="text-align:left;">
+            <label for="loginPasswordInput">Heslo</label>
+            <input type="password" id="loginPasswordInput" placeholder="Zadejte heslo">
+        </div>
+        <div class="inn-gate-error" id="loginGateError" style="display:none; color:var(--danger,#d9534f); font-size:0.85em; margin-top:6px;"></div>
+        <div class="inn-modal-actions" style="justify-content:center; margin-top:14px;">
+            <button class="inn-btn primary" id="loginSubmitBtn">Přihlásit se</button>
+        </div>
+    </div>
+</div>
+
 <div class="inn-topbar">
     <h1><span class="eyebrow">Interní</span> Správa stolů</h1>
     <div class="inn-topbar-meta">
         <span><span class="inn-conn-dot" id="connDot"></span><span id="connText">Připojování…</span></span>
+        <span id="loggedInUserText"></span>
         <span id="clockText"></span>
+        <button class="inn-btn" id="logoutBtn" style="display:none; padding:4px 10px; font-size:0.85em;">Odhlásit</button>
     </div>
 </div>
 
@@ -56,6 +79,11 @@
             <input type="text" class="inn-filter-search" id="tableSearchInput" placeholder="Hledat stůl…">
             <div class="inn-table-nav-list" id="tableNavList" style="overflow-y:auto;"></div>
             <button class="inn-new-table-btn" id="newTableBtn">+ Nový stůl</button>
+        </div>
+
+        <div class="inn-sidebar-section">
+            <h2>Účty</h2>
+            <button class="inn-new-table-btn" id="newAccountBtn">+ Nový účet</button>
         </div>
     </aside>
 
@@ -84,6 +112,32 @@
         <div class="inn-modal-actions">
             <button class="inn-btn" id="newTableCancelBtn">Zrušit</button>
             <button class="inn-btn primary" id="newTableCreateBtn">Vytvořit</button>
+        </div>
+    </div>
+</div>
+
+<div class="inn-modal-overlay" id="newAccountModal">
+    <div class="inn-modal-box">
+        <h3>Nový účet</h3>
+        <div class="inn-field-group">
+            <label for="newAccountName">Celé jméno</label>
+            <input type="text" id="newAccountName" placeholder="Zadejte celé jméno">
+        </div>
+        <div class="inn-field-group">
+            <label for="newAccountAbbr">Zkratka</label>
+            <input type="text" id="newAccountAbbr" placeholder="Zadejte zkratku">
+        </div>
+        <div class="inn-field-group">
+            <label for="newAccountPassword">Heslo</label>
+            <input type="password" id="newAccountPassword" placeholder="Zadejte heslo">
+        </div>
+        <div class="inn-field-group">
+            <label><input type="checkbox" id="newAccountIsAdmin"> Administrátorský účet</label>
+        </div>
+        <div class="inn-gate-error" id="newAccountError" style="display:none; color:var(--danger,#d9534f); font-size:0.85em;"></div>
+        <div class="inn-modal-actions">
+            <button class="inn-btn" id="newAccountCancelBtn">Zrušit</button>
+            <button class="inn-btn primary" id="newAccountCreateBtn">Vytvořit</button>
         </div>
     </div>
 </div>
