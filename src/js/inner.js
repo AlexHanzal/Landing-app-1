@@ -9,6 +9,7 @@ let API_URL = `${API_BASE_URL}/reservation/api`;
 let tables = {};          // name -> timetable object (as returned by API, plus fileId)
 let selectedTableName = null;
 let currentView = 'overview'; // 'overview' | 'detail'
+let loggedInUser = null;  // { name, abbreviation, isAdmin }
 
 const WEEKDAYS = ['Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek'];
 const HOUR_LABELS = ['8:00-9:00','9:00-10:00','10:00-11:00','11:00-12:00','12:00-13:00',
@@ -64,7 +65,7 @@ async function tryConnect(url) {
         document.getElementById('gateOverlay').style.display = 'none';
         document.getElementById('connDot').classList.remove('bad');
         document.getElementById('connText').textContent = API_BASE_URL;
-        await loadAllTables();
+        await showLoginGate();
         return true;
     } catch (e) {
         document.getElementById('connDot').classList.add('bad');
@@ -72,6 +73,149 @@ async function tryConnect(url) {
         return false;
     }
 }
+
+// ════════════════════════════════════════════════════════════════════════
+// LOGIN GATE (moved here from the customer-facing app — this is now the
+// only place login/admin-account credentials are needed)
+// ════════════════════════════════════════════════════════════════════════
+
+async function showLoginGate() {
+    await loadUserOptions();
+    document.getElementById('loginGateOverlay').style.display = 'flex';
+}
+
+async function loadUserOptions() {
+    try {
+        const response = await fetch(`${API_URL}/users`);
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const users = await response.json();
+
+        const select = document.getElementById('loginUserSelect');
+        if (!select) return;
+        select.innerHTML = '<option value="">Vyberte uživatele</option>';
+        users.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.abbreviation;
+            option.textContent = user.name;
+            select.appendChild(option);
+        });
+    } catch (e) {
+        console.error('Nepodařilo se načíst uživatele:', e);
+    }
+}
+
+async function handleLogin() {
+    const select = document.getElementById('loginUserSelect');
+    const passwordInput = document.getElementById('loginPasswordInput');
+    const errorEl = document.getElementById('loginGateError');
+    errorEl.style.display = 'none';
+
+    if (!select.value || !passwordInput.value) {
+        errorEl.textContent = 'Prosím vyplňte všechna pole';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/users/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ abbreviation: select.value, password: passwordInput.value })
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+            errorEl.textContent = data.error || 'Neplatné heslo';
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        loggedInUser = { name: data.name, abbreviation: select.value, isAdmin: !!data.isAdmin };
+        passwordInput.value = '';
+        document.getElementById('loginGateOverlay').style.display = 'none';
+
+        const userText = document.getElementById('loggedInUserText');
+        if (userText) userText.textContent = loggedInUser.name;
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) logoutBtn.style.display = 'inline-block';
+
+        await loadAllTables();
+        showToast(`Přihlášen jako ${loggedInUser.name}`);
+    } catch (e) {
+        errorEl.textContent = 'Chyba připojení. Prosím zkuste to znovu.';
+        errorEl.style.display = 'block';
+    }
+}
+
+function performLogout() {
+    loggedInUser = null;
+    tables = {};
+    selectedTableName = null;
+
+    const userText = document.getElementById('loggedInUserText');
+    if (userText) userText.textContent = '';
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.style.display = 'none';
+
+    document.getElementById('loginPasswordInput').value = '';
+    showLoginGate();
+}
+
+document.getElementById('loginSubmitBtn').addEventListener('click', handleLogin);
+document.getElementById('loginPasswordInput').addEventListener('keypress', e => {
+    if (e.key === 'Enter') handleLogin();
+});
+document.getElementById('logoutBtn').addEventListener('click', performLogout);
+
+// ════════════════════════════════════════════════════════════════════════
+// ACCOUNT CREATION (admin-only)
+// ════════════════════════════════════════════════════════════════════════
+
+document.getElementById('newAccountBtn').addEventListener('click', () => {
+    document.getElementById('newAccountName').value = '';
+    document.getElementById('newAccountAbbr').value = '';
+    document.getElementById('newAccountPassword').value = '';
+    document.getElementById('newAccountIsAdmin').checked = false;
+    document.getElementById('newAccountError').style.display = 'none';
+    document.getElementById('newAccountModal').classList.add('active');
+});
+document.getElementById('newAccountCancelBtn').addEventListener('click', () => {
+    document.getElementById('newAccountModal').classList.remove('active');
+});
+document.getElementById('newAccountModal').addEventListener('click', e => {
+    if (e.target.id === 'newAccountModal') document.getElementById('newAccountModal').classList.remove('active');
+});
+
+document.getElementById('newAccountCreateBtn').addEventListener('click', async () => {
+    const name = document.getElementById('newAccountName').value.trim();
+    const abbreviation = document.getElementById('newAccountAbbr').value.trim();
+    const password = document.getElementById('newAccountPassword').value.trim();
+    const isAdmin = document.getElementById('newAccountIsAdmin').checked;
+    const errorEl = document.getElementById('newAccountError');
+    errorEl.style.display = 'none';
+
+    if (!name || !abbreviation || !password) {
+        errorEl.textContent = 'Všechna pole jsou povinná';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/users`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, abbreviation, password, isAdmin })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Chyba při vytváření účtu');
+
+        document.getElementById('newAccountModal').classList.remove('active');
+        showToast('Účet byl úspěšně vytvořen');
+    } catch (e) {
+        errorEl.textContent = e.message || 'Chyba připojení. Prosím zkuste to znovu.';
+        errorEl.style.display = 'block';
+    }
+});
 
 document.getElementById('gateConnectBtn').addEventListener('click', () => {
     const val = document.getElementById('gateApiInput').value.trim();
